@@ -112,15 +112,15 @@ class ProfileView extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
-                const SizedBox(height: 12),
-                _buildSettingCard(
-                  icon: Icons.coffee,
-                  iconColor: Colors.orange,
-                  title: "Buy me a coffee",
-                  subtitle: "Dukung pengembang aplikasi",
-                  onTap: () => controller.openBuyMeCoffee(),
-                ),
 
+                // const SizedBox(height: 12),
+                // _buildSettingCard(
+                //   icon: Icons.coffee,
+                //   iconColor: Colors.orange,
+                //   title: "Buy me a coffee",
+                //   subtitle: "Dukung pengembang aplikasi",
+                //   onTap: () => controller.openBuyMeCoffee(),
+                // ),
                 const SizedBox(height: 24),
                 // Section Title: Tentang
                 const Text(
@@ -334,6 +334,7 @@ class ProfileView extends StatelessWidget {
             TextButton(onPressed: () => Get.back(), child: const Text('Batal')),
             TextButton(
               onPressed: () {
+                Get.back();
                 controller.updatePrimaryColor(selectedColor);
               },
               child: const Text('Simpan'),

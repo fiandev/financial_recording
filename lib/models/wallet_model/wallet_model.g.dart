@@ -18,7 +18,7 @@ class WalletModelAdapter extends TypeAdapter<WalletModel> {
     };
     return WalletModel(
       name: fields[0] as String,
-      iconPath: fields[4] as String,
+      iconPath: fields[4] as String?,
       balance: fields[1] as int,
       gradient: (fields[3] as List).cast<int>(),
       todayExpense: fields[2] as int?,

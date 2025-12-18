@@ -132,6 +132,10 @@ class _QDropdownFieldState extends State<QDropdownField> {
               "Error",
               "Wallet dengan balance 0 tidak bisa dipilih",
               snackPosition: SnackPosition.BOTTOM,
+              mainButton: TextButton(
+                onPressed: () => Get.back(),
+                child: const Icon(Icons.close, color: Colors.white),
+              ),
             );
             return;
           }

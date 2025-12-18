@@ -147,7 +147,14 @@ class WalletDetailController extends GetxController {
         walletController.initializeData(); // Refresh list
         Get.back(); // Close dialog
         Get.back(); // Go back to wallet list
-        Get.snackbar("Sukses", "Wallet berhasil dihapus");
+        Get.snackbar(
+          "Sukses",
+          "Wallet berhasil dihapus",
+          mainButton: TextButton(
+            onPressed: () => Get.back(),
+            child: const Icon(Icons.close, color: Colors.white),
+          ),
+        );
       },
     );
   }

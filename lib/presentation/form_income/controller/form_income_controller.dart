@@ -2,7 +2,7 @@ import 'package:financial_recording/models/category_model/category_model.dart';
 import 'package:financial_recording/models/transaction_model/transaction_model.dart';
 import 'package:financial_recording/presentation/dashboard/controller/dashboard_controller.dart';
 import 'package:financial_recording/presentation/wallet/controller/wallet_controller.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:financial_recording/models/wallet_model/wallet_model.dart';
@@ -49,10 +49,10 @@ class FormIncomeController extends GetxController {
 
     wallets.sort((a, b) {
       double balanceA = double.parse(
-        a['label'].split('Rp. ')[1].replaceAll(',', ''),
+        a['label'].split('Rp. ')[1].replaceAll('.', '').replaceAll(',', ''),
       );
       double balanceB = double.parse(
-        b['label'].split('Rp. ')[1].replaceAll(',', ''),
+        b['label'].split('Rp. ')[1].replaceAll('.', '').replaceAll(',', ''),
       );
       return balanceB.compareTo(balanceA);
     });
@@ -88,11 +88,25 @@ class FormIncomeController extends GetxController {
 
   Future<void> saveIncome() async {
     if (selectedWalletKey.value.isEmpty) {
-      Get.snackbar("Error", "Pilih Wallet terlebih dahulu");
+      Get.snackbar(
+        "Error",
+        "Pilih Wallet terlebih dahulu",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
     if (selectedCategoryKey.value.isEmpty) {
-      Get.snackbar("Error", "Pilih Kategori terlebih dahulu");
+      Get.snackbar(
+        "Error",
+        "Pilih Kategori terlebih dahulu",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
 
@@ -133,10 +147,24 @@ class FormIncomeController extends GetxController {
       controllerDashboard.initializeData();
       controller.refresh();
       Get.back();
-      Get.snackbar("Sukses", "Pemasukan berhasil disimpan");
+      Get.snackbar(
+        "Sukses",
+        "Pemasukan berhasil disimpan",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
     } catch (e) {
       print(e);
-      Get.snackbar("Error", "Gagal menyimpan pemasukan: $e");
+      Get.snackbar(
+        "Error",
+        "Gagal menyimpan pemasukan: $e",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
     } finally {
       isLoading.value = false;
     }

@@ -1,4 +1,6 @@
 import 'package:financial_recording/models/category_model/category_model.dart';
+import 'package:financial_recording/models/debt_model/debt_model.dart';
+import 'package:financial_recording/models/receivable_model/receivable_model.dart';
 import 'package:financial_recording/models/transaction_model/transaction_model.dart';
 import 'package:financial_recording/models/wallet_model/wallet_model.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +30,13 @@ void main() async {
   Hive.registerAdapter(WalletModelAdapter());
   Hive.registerAdapter(CategoryModelAdapter());
   Hive.registerAdapter(TransactionModelAdapter());
+  Hive.registerAdapter(DebtModelAdapter());
+  Hive.registerAdapter(ReceivableModelAdapter());
   await Hive.openBox<WalletModel>('walletBox');
   await Hive.openBox<CategoryModel>('categories');
   await Hive.openBox<TransactionModel>('transactions');
+  await Hive.openBox<DebtModel>('debts');
+  await Hive.openBox<ReceivableModel>('receivables');
 
   await _seedData();
 

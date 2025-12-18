@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
@@ -47,7 +48,7 @@ class FormCategoryController extends GetxController {
     editingCategory.value = category;
     if (category != null) {
       categoryName.value = category.name;
-      selectedIcon.value = category.iconPath;
+      selectedIcon.value = category.iconPath ?? "";
     } else {
       categoryName.value = "";
       selectedIcon.value = "";
@@ -60,11 +61,25 @@ class FormCategoryController extends GetxController {
 
   void saveCategory(String type) {
     if (categoryName.value.isEmpty) {
-      Get.snackbar("Error", "Nama kategori tidak boleh kosong");
+      Get.snackbar(
+        "Error",
+        "Nama kategori tidak boleh kosong",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
     if (selectedIcon.value.isEmpty) {
-      Get.snackbar("Error", "Pilih icon untuk kategori");
+      Get.snackbar(
+        "Error",
+        "Pilih icon untuk kategori",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
 
@@ -75,7 +90,14 @@ class FormCategoryController extends GetxController {
             element.key == editingCategory.value!.key) {
           continue; // It's the same item
         }
-        Get.snackbar("Error", "Nama kategori sudah ada");
+        Get.snackbar(
+          "Error",
+          "Nama kategori sudah ada",
+          mainButton: TextButton(
+            onPressed: () => Get.back(),
+            child: const Icon(Icons.close, color: Colors.white),
+          ),
+        );
         return;
       }
     }
@@ -84,14 +106,14 @@ class FormCategoryController extends GetxController {
       // Update existing
       var category = editingCategory.value!;
       category.name = categoryName.value;
-      category.iconPath = selectedIcon.value;
+      category.iconPath = selectedIcon.value.isEmpty ? null : selectedIcon.value;
       category.type = type;
       category.save(); // HiveObject save
     } else {
       // Create new
       final category = CategoryModel(
         name: categoryName.value,
-        iconPath: selectedIcon.value,
+        iconPath: selectedIcon.value.isEmpty ? null : selectedIcon.value,
         type: type,
       );
       box.add(category);
@@ -106,6 +128,13 @@ class FormCategoryController extends GetxController {
     }
 
     Get.back();
-    Get.snackbar("Success", "Kategori berhasil disimpan");
+    Get.snackbar(
+      "Success",
+      "Kategori berhasil disimpan",
+      mainButton: TextButton(
+        onPressed: () => Get.back(),
+        child: const Icon(Icons.close, color: Colors.white),
+      ),
+    );
   }
 }

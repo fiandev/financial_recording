@@ -8,7 +8,7 @@ class CategoryModel extends HiveObject {
   String name;
 
   @HiveField(1)
-  String iconPath;
+  String? iconPath;
 
   @HiveField(2)
   String type;
@@ -18,7 +18,7 @@ class CategoryModel extends HiveObject {
 
   CategoryModel({
     required this.name,
-    required this.iconPath,
+    this.iconPath,
     required this.type,
     this.color,
   });

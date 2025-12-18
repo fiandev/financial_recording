@@ -124,7 +124,7 @@ class FormWalletController extends GetxController {
     if (wallet != null) {
       walletName.value = wallet.name;
       initialBalance.value = wallet.balance.toString();
-      selectedIcon.value = wallet.iconPath;
+      selectedIcon.value = wallet.iconPath ?? "";
       selectedGradient.assignAll(wallet.gradientColors);
     } else {
       walletName.value = "";
@@ -161,19 +161,47 @@ class FormWalletController extends GetxController {
 
   void saveWallet() {
     if (walletName.value.isEmpty) {
-      Get.snackbar("Error", "Nama wallet tidak boleh kosong");
+      Get.snackbar(
+        "Error",
+        "Nama wallet tidak boleh kosong",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
     if (initialBalance.value.isEmpty) {
-      Get.snackbar("Error", "Saldo awal tidak boleh kosong");
+      Get.snackbar(
+        "Error",
+        "Saldo awal tidak boleh kosong",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
     if (selectedGradient.length < 2) {
-      Get.snackbar("Error", "Pilih 2 warna untuk wallet");
+      Get.snackbar(
+        "Error",
+        "Pilih 2 warna untuk wallet",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
     if (selectedIcon.value.isEmpty) {
-      Get.snackbar("Error", "Pilih icon untuk wallet");
+      Get.snackbar(
+        "Error",
+        "Pilih icon untuk wallet",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
 
@@ -202,6 +230,13 @@ class FormWalletController extends GetxController {
     // Since we saved to box, it should be fine.
 
     Get.back();
-    Get.snackbar("Success", "Wallet berhasil disimpan");
+    Get.snackbar(
+      "Success",
+      "Wallet berhasil disimpan",
+      mainButton: TextButton(
+        onPressed: () => Get.back(),
+        child: const Icon(Icons.close, color: Colors.white),
+      ),
+    );
   }
 }

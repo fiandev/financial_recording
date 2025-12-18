@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:financial_recording/models/transaction_model/transaction_model.dart';
 import 'package:financial_recording/models/wallet_model/wallet_model.dart';
 import 'package:get/get.dart';
@@ -47,7 +48,14 @@ class DashboardController extends GetxController {
         }
       }
     } catch (e) {
-      Get.snackbar("Error", "Failed to load data");
+      Get.snackbar(
+        "Error",
+        "Failed to load data",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
     }
   }
 }

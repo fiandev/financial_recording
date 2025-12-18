@@ -6,11 +6,19 @@ fileCount: 73
 */
 export 'package:financial_recording/core_package.dart';
 export 'package:financial_recording/models/category_model/category_model.dart';
+export 'package:financial_recording/models/debt_model/debt_model.dart';
+export 'package:financial_recording/models/receivable_model/receivable_model.dart';
 export 'package:financial_recording/models/transaction_model/transaction_model.dart';
 export 'package:financial_recording/models/user_model/user_model.dart';
 export 'package:financial_recording/models/wallet_model/wallet_model.dart';
 export 'package:financial_recording/presentation/category/controller/category_controller.dart';
 export 'package:financial_recording/presentation/category/view/category_view.dart';
+export 'package:financial_recording/presentation/debt/controller/debt_controller.dart';
+export 'package:financial_recording/presentation/debt/view/debt_view.dart';
+export 'package:financial_recording/presentation/debt/view/form_debt_view.dart';
+export 'package:financial_recording/presentation/receivable/controller/receivable_controller.dart';
+export 'package:financial_recording/presentation/receivable/view/form_receivable_view.dart';
+export 'package:financial_recording/presentation/receivable/view/receivable_view.dart';
 export 'package:financial_recording/presentation/category_expanses/controller/category_expanses_controller.dart';
 export 'package:financial_recording/presentation/category_expanses/view/category_expanses_view.dart';
 export 'package:financial_recording/presentation/category_income/controller/category_income_controller.dart';

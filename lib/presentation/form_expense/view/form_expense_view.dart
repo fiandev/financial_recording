@@ -311,7 +311,14 @@ class FormExpenseView extends StatelessWidget {
                   enabled: controller.isEnable.value,
                   onPressed: () {
                     if (!controller.formKey.currentState!.validate()) {
-                      Get.snackbar("Error", "Formulir tidak valid");
+                      Get.snackbar(
+                        "Error",
+                        "Formulir tidak valid",
+                        mainButton: TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Icon(Icons.close, color: Colors.white),
+                        ),
+                      );
                       return;
                     }
                     controller.saveExpense();

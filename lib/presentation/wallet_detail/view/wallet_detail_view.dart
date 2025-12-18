@@ -68,7 +68,9 @@ class WalletDetailView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(wallet.iconPath, width: 40, height: 40),
+                    wallet.iconPath != null
+                    ? Image.asset(wallet.iconPath!, width: 40, height: 40)
+                    : Icon(Icons.account_balance_wallet, size: 40, color: Colors.white),
                     const SizedBox(width: 10),
                     Text(
                       wallet.name,

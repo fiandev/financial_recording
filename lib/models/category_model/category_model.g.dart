@@ -18,7 +18,7 @@ class CategoryModelAdapter extends TypeAdapter<CategoryModel> {
     };
     return CategoryModel(
       name: fields[0] as String,
-      iconPath: fields[1] as String,
+      iconPath: fields[1] as String?,
       type: fields[2] as String,
       color: fields[3] as String?,
     );

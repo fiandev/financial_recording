@@ -89,15 +89,36 @@ class FormTransferController extends GetxController {
 
   Future<void> saveTransfer() async {
     if (selectedSourceWalletKey.value.isEmpty) {
-      Get.snackbar("Error", "Pilih Wallet Sumber");
+      Get.snackbar(
+        "Error",
+        "Pilih Wallet Sumber",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
     if (selectedDestWalletKey.value.isEmpty) {
-      Get.snackbar("Error", "Pilih Wallet Tujuan");
+      Get.snackbar(
+        "Error",
+        "Pilih Wallet Tujuan",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
     if (totalIncome <= 0) {
-      Get.snackbar("Error", "Nominal transfer harus lebih dari 0");
+      Get.snackbar(
+        "Error",
+        "Nominal transfer harus lebih dari 0",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
       return;
     }
 
@@ -110,7 +131,14 @@ class FormTransferController extends GetxController {
       final WalletModel destWallet = box.get(destKey)!;
 
       if (sourceWallet.balance < totalIncome) {
-        Get.snackbar("Error", "Saldo wallet sumber tidak mencukupi");
+        Get.snackbar(
+          "Error",
+          "Saldo wallet sumber tidak mencukupi",
+          mainButton: TextButton(
+            onPressed: () => Get.back(),
+            child: const Icon(Icons.close, color: Colors.white),
+          ),
+        );
         isLoading.value = false;
         return;
       }
@@ -151,9 +179,23 @@ class FormTransferController extends GetxController {
       }
 
       Get.back();
-      Get.snackbar("Sukses", "Transfer berhasil");
+      Get.snackbar(
+        "Sukses",
+        "Transfer berhasil",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
     } catch (e) {
-      Get.snackbar("Error", "Gagal transfer: $e");
+      Get.snackbar(
+        "Error",
+        "Gagal transfer: $e",
+        mainButton: TextButton(
+          onPressed: () => Get.back(),
+          child: const Icon(Icons.close, color: Colors.white),
+        ),
+      );
     } finally {
       isLoading.value = false;
     }

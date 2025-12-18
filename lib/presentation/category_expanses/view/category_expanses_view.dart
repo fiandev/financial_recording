@@ -49,8 +49,8 @@ class CategoryExpansesView extends StatelessWidget {
         return _buildCategoryCard(
           category: category,
           name: category.name,
-          iconPath: category.iconPath,
-          color: controller.parseColorString(category.color!),
+          iconPath: category.iconPath ?? "",
+          color: controller.parseColorString(category.color ?? ""),
           index: index,
           controller: controller,
         );
@@ -61,7 +61,7 @@ class CategoryExpansesView extends StatelessWidget {
   Widget _buildCategoryCard({
     required CategoryModel category,
     required String name,
-    required String iconPath,
+    required String? iconPath,
     required Color color,
     required int index,
     required CategoryExpansesController controller,
@@ -104,12 +104,18 @@ class CategoryExpansesView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: color.withOpacity(0.3), width: 1),
                   ),
-                  child: Image.asset(
-                    iconPath,
-                    width: 32,
-                    height: 32,
-                    fit: BoxFit.contain,
-                  ),
+                  child: iconPath != null
+                      ? Image.asset(
+                          iconPath,
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.contain,
+                        )
+                      : Icon(
+                          Icons.category,
+                          size: 32,
+                          color: color,
+                        ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

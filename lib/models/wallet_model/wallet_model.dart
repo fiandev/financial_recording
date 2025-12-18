@@ -19,11 +19,11 @@ class WalletModel extends HiveObject {
   List<int> gradient;
 
   @HiveField(4)
-  String iconPath;
+  String? iconPath;
 
   WalletModel({
     required this.name,
-    required this.iconPath,
+    this.iconPath,
     required this.balance,
     required this.gradient,
     this.todayExpense,

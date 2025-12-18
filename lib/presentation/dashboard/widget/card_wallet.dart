@@ -20,10 +20,10 @@ class CardWallet extends StatelessWidget {
             width: MediaQuery.of(context).size.width - 120,
             height: 180,
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.3),
+              color: primaryColor.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
                 width: 1,
               ),
             ),
@@ -37,10 +37,10 @@ class CardWallet extends StatelessWidget {
             width: MediaQuery.of(context).size.width - 90,
             height: 180,
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.6),
+              color: primaryColor.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
                 width: 1,
               ),
             ),
@@ -63,7 +63,7 @@ class CardWallet extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: primaryColor.withOpacity(0.4),
+                color: primaryColor.withValues(alpha: 0.4),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -80,7 +80,7 @@ class CardWallet extends StatelessWidget {
                   height: 150,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -94,7 +94,7 @@ class CardWallet extends StatelessWidget {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                   ),
                 ),
               ),
@@ -108,7 +108,7 @@ class CardWallet extends StatelessWidget {
                   height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withValues(alpha: 0.05),
                   ),
                 ),
               ),
@@ -156,7 +156,7 @@ class CardWallet extends StatelessWidget {
                             ),
                             Icon(
                               Icons.account_balance_wallet,
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               size: 28,
                             ),
                           ],
