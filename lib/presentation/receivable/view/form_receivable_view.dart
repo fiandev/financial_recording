@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:financial_recording/core.dart';
 import 'package:intl/intl.dart';
-import '../controller/receivable_controller.dart';
 
 class FormReceivableView extends StatelessWidget {
   final ReceivableModel? editingReceivable;
@@ -12,7 +11,9 @@ class FormReceivableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ReceivableController controller = Get.find<ReceivableController>() ?? Get.put(ReceivableController());
+    final ReceivableController controller = Get.isRegistered<ReceivableController>()
+        ? Get.find<ReceivableController>()
+        : Get.put(ReceivableController());
 
     // Initialize form values
     final TextEditingController debtorNameController = TextEditingController(
@@ -292,7 +293,7 @@ class FormReceivableView extends StatelessWidget {
                                         children: [
                                           Text(
                                             dueDate != null 
-                                              ? DateFormat('dd MMM yyyy', 'id').format(dueDate!) 
+                                              ? DateFormat('dd MMM yyyy', 'id').format(dueDate) 
                                               : "Pilih tanggal jatuh tempo",
                                             style: TextStyle(
                                               color: dueDate != null 

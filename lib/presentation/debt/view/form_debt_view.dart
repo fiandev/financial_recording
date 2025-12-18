@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:financial_recording/core.dart';
 import 'package:intl/intl.dart';
-import '../controller/debt_controller.dart';
 
 class FormDebtView extends StatelessWidget {
   final DebtModel? editingDebt;
@@ -12,7 +11,9 @@ class FormDebtView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DebtController controller = Get.find<DebtController>() ?? Get.put(DebtController());
+    final DebtController controller = Get.isRegistered<DebtController>()
+        ? Get.find<DebtController>()
+        : Get.put(DebtController());
 
     // Initialize form values
     final TextEditingController creditorNameController = TextEditingController(
@@ -296,7 +297,7 @@ class FormDebtView extends StatelessWidget {
                                         children: [
                                           Text(
                                             dueDate != null
-                                              ? DateFormat('dd MMM yyyy', 'id').format(dueDate!)
+                                              ? DateFormat('dd MMM yyyy', 'id').format(dueDate)
                                               : "Pilih tanggal jatuh tempo",
                                             style: TextStyle(
                                               color: dueDate != null
