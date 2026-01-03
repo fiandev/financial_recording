@@ -31,5 +31,6 @@ class WalletModel extends HiveObject {
 
   List<Color> get gradientColors => gradient.map((c) => Color(c)).toList();
   set gradientColors(List<Color> colors) =>
+      // ignore: deprecated_member_use
       gradient = colors.map((c) => c.value).toList();
 }

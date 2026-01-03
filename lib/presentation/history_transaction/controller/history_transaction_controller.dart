@@ -150,6 +150,12 @@ class HistoryTransactionController extends GetxController {
     totalExpense.value = expense;
   }
 
+  // show all trx
+  void resetDateRange() {
+    selectedDateRange.value = null;
+    applyFilters();
+  }
+
   void resetFilters() {
     final now = DateTime.now();
     selectedDateRange.value = DateTimeRange(

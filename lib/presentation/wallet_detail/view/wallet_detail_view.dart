@@ -137,10 +137,10 @@ class WalletDetailView extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: Colors.green.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Colors.green.withOpacity(0.2),
+                                color: Colors.green.withValues(alpha: 0.2),
                               ),
                             ),
                             child: Column(
@@ -174,10 +174,10 @@ class WalletDetailView extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
+                              color: Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Colors.red.withOpacity(0.2),
+                                color: Colors.red.withValues(alpha: 0.2),
                               ),
                             ),
                             child: Column(
@@ -446,7 +446,7 @@ class WalletDetailView extends StatelessWidget {
                                   if (selected)
                                     controller.selectedType.value = type;
                                 },
-                                selectedColor: primaryColor.withOpacity(0.2),
+                                selectedColor: primaryColor.withValues(alpha: 0.2),
                                 labelStyle: TextStyle(
                                   color: isSelected
                                       ? primaryColor

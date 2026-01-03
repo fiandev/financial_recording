@@ -11,7 +11,8 @@ class FormReceivableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ReceivableController controller = Get.isRegistered<ReceivableController>()
+    final ReceivableController controller =
+        Get.isRegistered<ReceivableController>()
         ? Get.find<ReceivableController>()
         : Get.put(ReceivableController());
 
@@ -60,7 +61,7 @@ class FormReceivableView extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -94,10 +95,10 @@ class FormReceivableView extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.1),
+                      color: primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: primaryColor.withOpacity(0.3),
+                        color: primaryColor.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -131,12 +132,17 @@ class FormReceivableView extends StatelessWidget {
                             );
                             if (pickedDate != null) {
                               selectedDate = pickedDate;
-                              Get.snackbar("Tanggal Diubah", 
-                                "Tanggal peminjaman: ${DateFormat('dd MMM yyyy').format(selectedDate)}");
+                              Get.snackbar(
+                                "Tanggal Diubah",
+                                "Tanggal peminjaman: ${DateFormat('dd MMM yyyy').format(selectedDate)}",
+                              );
                             }
                           },
                           child: Text(
-                            DateFormat("dd MMM yyyy", "id").format(selectedDate),
+                            DateFormat(
+                              "dd MMM yyyy",
+                              "id",
+                            ).format(selectedDate),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -188,7 +194,7 @@ class FormReceivableView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -222,7 +228,9 @@ class FormReceivableView extends StatelessWidget {
                                   Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
-                                      color: primaryColor.withOpacity(0.1),
+                                      color: primaryColor.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -264,16 +272,20 @@ class FormReceivableView extends StatelessWidget {
                                   const SizedBox(height: 8),
                                   GestureDetector(
                                     onTap: () async {
-                                      DateTime? pickedDate = await showDatePicker(
-                                        context: context,
-                                        initialDate: dueDate ?? DateTime.now(),
-                                        firstDate: DateTime(2000),
-                                        lastDate: DateTime(2100),
-                                      );
+                                      DateTime? pickedDate =
+                                          await showDatePicker(
+                                            context: context,
+                                            initialDate:
+                                                dueDate ?? DateTime.now(),
+                                            firstDate: DateTime(2000),
+                                            lastDate: DateTime(2100),
+                                          );
                                       if (pickedDate != null) {
                                         dueDate = pickedDate;
-                                        Get.snackbar("Tanggal Diubah", 
-                                          "Tanggal jatuh tempo: ${DateFormat('dd MMM yyyy').format(dueDate!)}");
+                                        Get.snackbar(
+                                          "Tanggal Diubah",
+                                          "Tanggal jatuh tempo: ${DateFormat('dd MMM yyyy').format(dueDate!)}",
+                                        );
                                       }
                                     },
                                     child: Container(
@@ -289,16 +301,20 @@ class FormReceivableView extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            dueDate != null 
-                                              ? DateFormat('dd MMM yyyy', 'id').format(dueDate) 
-                                              : "Pilih tanggal jatuh tempo",
+                                            dueDate != null
+                                                ? DateFormat(
+                                                    'dd MMM yyyy',
+                                                    'id',
+                                                  ).format(dueDate)
+                                                : "Pilih tanggal jatuh tempo",
                                             style: TextStyle(
-                                              color: dueDate != null 
-                                                ? Colors.black
-                                                : Colors.grey.shade600,
+                                              color: dueDate != null
+                                                  ? Colors.black
+                                                  : Colors.grey.shade600,
                                             ),
                                           ),
                                           Icon(
@@ -318,7 +334,7 @@ class FormReceivableView extends StatelessWidget {
                                 onChanged: (value) {
                                   descriptionController.text = value;
                                 },
-                                maxLines: 3,
+                                hint: "Contoh: Budi pinjem buat beli crypto",
                                 prefixIcon: Icons.description,
                               ),
                             ],
@@ -338,7 +354,7 @@ class FormReceivableView extends StatelessWidget {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),
@@ -353,7 +369,10 @@ class FormReceivableView extends StatelessWidget {
                   }
 
                   // Remove formatting characters (like dots or commas) before parsing
-                  String cleanAmount = amountController.text.replaceAll(RegExp(r'[^\d]'), '');
+                  String cleanAmount = amountController.text.replaceAll(
+                    RegExp(r'[^\d]'),
+                    '',
+                  );
                   double amount = double.tryParse(cleanAmount) ?? 0;
                   if (amount <= 0) {
                     Get.snackbar("Error", "Jumlah piutang harus lebih dari 0");
@@ -365,7 +384,9 @@ class FormReceivableView extends StatelessWidget {
                     amount: amount,
                     date: selectedDate,
                     dueDate: dueDate,
-                    description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim(),
+                    description: descriptionController.text.trim().isEmpty
+                        ? null
+                        : descriptionController.text.trim(),
                     isSettled: editingReceivable?.isSettled ?? false,
                     settledAt: editingReceivable?.settledAt,
                   );
@@ -387,7 +408,9 @@ class FormReceivableView extends StatelessWidget {
                   elevation: 0,
                 ),
                 child: Text(
-                  editingReceivable == null ? "Simpan Piutang" : "Perbarui Piutang",
+                  editingReceivable == null
+                      ? "Simpan Piutang"
+                      : "Perbarui Piutang",
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

@@ -1,11 +1,6 @@
-import 'package:financial_recording/models/category_model/category_model.dart';
-import 'package:financial_recording/models/debt_model/debt_model.dart';
-import 'package:financial_recording/models/receivable_model/receivable_model.dart';
-import 'package:financial_recording/models/transaction_model/transaction_model.dart';
-import 'package:financial_recording/models/wallet_model/wallet_model.dart';
+import 'package:financial_recording/presentation/splash/splash_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'core.dart';
@@ -125,11 +120,32 @@ class _MainAppState extends State<MainApp> {
       fallbackLocale: Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
       theme: getDefaultTheme(),
-      // home: LoginView(),
-      home: DBService.get("token") == null ? MenuListView() : null,
+      home: Splash(),
       onGenerateRoute: (routeSettings) {
         return null;
       },
     );
+  }
+}
+
+class Splash extends StatefulWidget {
+  @override
+  _SplashState createState() => _SplashState();
+}
+
+class _SplashState extends State<Splash> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 3), () {
+      Get.offAll(
+        () => DBService.get("token") == null ? MenuListView() : DashboardView(),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SplashView();
   }
 }

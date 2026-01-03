@@ -1,16 +1,32 @@
 import 'package:financial_recording/presentation/history_transaction/view/transaction_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:financial_recording/core.dart';
+import '../../../core.dart'; // Pastikan path ini sesuai
 import 'package:intl/intl.dart';
 
 class HistoryTransactionView extends StatelessWidget {
   const HistoryTransactionView({super.key});
 
+  String _formatCompact(int value) {
+    final formatter = NumberFormat("#,##0.##", "id");
+
+    if (value >= 1000000000000) {
+      return "${formatter.format(value / 1000000000000)} T";
+    } else if (value >= 1000000000) {
+      return "${formatter.format(value / 1000000000)} M";
+    } else if (value >= 1000000) {
+      return "${formatter.format(value / 1000000)} Jt";
+    }
+
+    return NumberFormat.decimalPattern('id').format(value);
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Pastikan Controller sudah di-handle oleh GetX Binding atau init di sini
     final controller = Get.put(HistoryTransactionController());
     final double appBarHeight = AppBar().preferredSize.height;
+
     return Obx(() {
       if (controller.isLoading.value) {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -42,6 +58,7 @@ class HistoryTransactionView extends StatelessWidget {
             ),
           ],
           backgroundColor: primaryColor,
+          elevation: 0,
         ),
         body: Container(
           padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
@@ -56,8 +73,7 @@ class HistoryTransactionView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Active Filters Display (Optional, skipping for clean UI, user can see in modal)
-              // Date Range Display
+              // Header: Range Tanggal & Tombol Reset
               Obx(() {
                 final range = controller.selectedDateRange.value;
                 String dateText = "Semua Waktu";
@@ -71,30 +87,55 @@ class HistoryTransactionView extends StatelessWidget {
                         "${DateFormat("dd MMM yyyy", "id").format(start)} - ${DateFormat("dd MMM yyyy", "id").format(end)}";
                   }
                 }
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Text(
-                    dateText,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Text(
+                        dateText,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
-                  ),
+                    // Perbaikan: Padding tidak punya onTap, gunakan GestureDetector/InkWell
+                    GestureDetector(
+                      onTap: () {
+                        controller.resetDateRange();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: Text(
+                          "Semua Waktu",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: range != null
+                                ? Colors.redAccent
+                                : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               }),
 
-              // Summaries
+              // Summary Cards (Income/Expense)
               Row(
                 children: [
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
+                        color: Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Colors.green.withOpacity(0.3),
+                          color: Colors.green.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Column(
@@ -118,7 +159,7 @@ class HistoryTransactionView extends StatelessWidget {
                               const Text(
                                 "Pemasukan",
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: Colors.green,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -128,7 +169,7 @@ class HistoryTransactionView extends StatelessWidget {
                           const SizedBox(height: 8),
                           Obx(
                             () => Text(
-                              "Rp. ${NumberFormat.decimalPattern('id').format(controller.totalIncome.value)}",
+                              "Rp. ${_formatCompact(controller.totalIncome.value)}",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -145,9 +186,11 @@ class HistoryTransactionView extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.1),
+                        color: Colors.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.red.withOpacity(0.3)),
+                        border: Border.all(
+                          color: Colors.red.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +213,7 @@ class HistoryTransactionView extends StatelessWidget {
                               const Text(
                                 "Pengeluaran",
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 14,
                                   color: Colors.red,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -180,7 +223,7 @@ class HistoryTransactionView extends StatelessWidget {
                           const SizedBox(height: 8),
                           Obx(
                             () => Text(
-                              "Rp. ${NumberFormat.decimalPattern('id').format(controller.totalExpense.value)}",
+                              "Rp. ${_formatCompact(controller.totalExpense.value)}",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -196,6 +239,7 @@ class HistoryTransactionView extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
+              // List Transaksi
               Expanded(
                 child: Obx(() {
                   if (controller.filteredHistories.isEmpty) {
@@ -216,7 +260,9 @@ class HistoryTransactionView extends StatelessWidget {
 
                   return ListView.builder(
                     itemCount: controller.filteredHistories.length,
-                    padding: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.only(
+                      bottom: 80,
+                    ), // Extra padding for FAB
                     itemBuilder: (context, index) {
                       final item = controller.filteredHistories[index];
                       return _buildTransactionItem(item, controller);
@@ -241,10 +287,6 @@ class HistoryTransactionView extends StatelessWidget {
     dynamic item,
     HistoryTransactionController controller,
   ) {
-    // item is TransactionModel
-    // dynamic type casting if needed or use model directly if imported
-    // Assuming item has properties matching model
-
     Color color = Colors.black;
     IconData icon = Icons.help;
     Color iconBg = Colors.grey.shade100;
@@ -275,7 +317,7 @@ class HistoryTransactionView extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -318,7 +360,7 @@ class HistoryTransactionView extends StatelessWidget {
               ),
             ),
             Text(
-              "Rp. ${NumberFormat.decimalPattern('id').format(item.amount)}",
+              "Rp. ${_formatCompact(item.amount)}",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: color,
@@ -338,228 +380,321 @@ class HistoryTransactionView extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor:
+          Colors.transparent, // Transparan agar rounded corners terlihat
       builder: (context) {
         return DraggableScrollableSheet(
           initialChildSize: 0.7,
           minChildSize: 0.5,
           maxChildSize: 0.9,
-          expand: false,
           builder: (context, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              padding: const EdgeInsets.all(20),
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Filter Transaksi",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          controller.resetFilters();
-                          Get.back();
-                        },
-                        child: const Text("Reset"),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-
-                  // Date Filter
-                  const Text(
-                    "Tanggal",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-                  Obx(
-                    () => InkWell(
-                      onTap: () async {
-                        final DateTimeRange? result = await showDateRangePicker(
-                          context: context,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime.now().add(
-                            const Duration(days: 365),
-                          ),
-                          currentDate: DateTime.now(),
-                          saveText: 'Simpan',
-                        );
-                        if (result != null) {
-                          controller.selectedDateRange.value = result;
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              controller.selectedDateRange.value == null
-                                  ? "Pilih Rentang Tanggal"
-                                  : "${DateFormat('dd/MM/yy').format(controller.selectedDateRange.value!.start)} - ${DateFormat('dd/MM/yy').format(controller.selectedDateRange.value!.end)}",
-                              style: const TextStyle(color: Colors.black87),
-                            ),
-                            const Icon(
-                              Icons.calendar_today,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                          ],
-                        ),
-                      ),
+                  // Handle bar untuk UX drag yang lebih baik
+                  Container(
+                    margin: const EdgeInsets.only(top: 8, bottom: 8),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-
-                  const SizedBox(height: 16),
-
-                  // Transaction Type
-                  const Text(
-                    "Jenis Transaksi",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-                  Obx(
-                    () => Wrap(
-                      spacing: 8,
-                      children:
-                          ["Semua", "Pemasukan", "Pengeluaran", "Transfer"].map(
-                            (type) {
-                              final isSelected =
-                                  controller.selectedType.value == type;
-                              return ChoiceChip(
-                                label: Text(type),
-                                selected: isSelected,
-                                onSelected: (selected) {
-                                  if (selected)
-                                    controller.selectedType.value = type;
-                                },
-                                selectedColor: primaryColor.withOpacity(0.2),
-                                labelStyle: TextStyle(
-                                  color: isSelected
-                                      ? primaryColor
-                                      : Colors.black87,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Filter Transaksi",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              );
-                            },
-                          ).toList(),
-                    ),
-                  ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  controller.resetFilters();
+                                  Get.back();
+                                },
+                                child: const Text("Reset Semua"),
+                              ),
+                            ],
+                          ),
+                          const Divider(),
 
-                  const SizedBox(height: 16),
+                          // Date Filter Section
+                          Obx(
+                            () => Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Tanggal",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                // Tombol reset khusus tanggal di dalam modal
+                                if (controller.selectedDateRange.value != null)
+                                  GestureDetector(
+                                    onTap: () {
+                                      controller.selectedDateRange.value = null;
+                                    },
+                                    child: Text(
+                                      "Reset Tanggal",
+                                      style: TextStyle(
+                                        color: Colors.red.shade600,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => InkWell(
+                              onTap: () async {
+                                final DateTimeRange? result =
+                                    await showDateRangePicker(
+                                      context: context,
+                                      firstDate: DateTime(2020),
+                                      lastDate: DateTime.now().add(
+                                        const Duration(days: 365),
+                                      ),
+                                      currentDate: DateTime.now(),
+                                      saveText: 'Simpan',
+                                      builder: (context, child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: ColorScheme.light(
+                                              primary: primaryColor,
+                                            ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
+                                if (result != null) {
+                                  controller.selectedDateRange.value = result;
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      controller.selectedDateRange.value == null
+                                          ? "Pilih Rentang Tanggal"
+                                          : "${DateFormat('dd/MM/yy').format(controller.selectedDateRange.value!.start)} - ${DateFormat('dd/MM/yy').format(controller.selectedDateRange.value!.end)}",
+                                      style: TextStyle(
+                                        color:
+                                            controller
+                                                    .selectedDateRange
+                                                    .value ==
+                                                null
+                                            ? Colors.grey
+                                            : Colors.black87,
+                                        fontWeight:
+                                            controller
+                                                    .selectedDateRange
+                                                    .value ==
+                                                null
+                                            ? FontWeight.normal
+                                            : FontWeight.w500,
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.calendar_today,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
 
-                  // Wallet Filter
-                  const Text(
-                    "Wallet",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-                  Obx(
-                    () => DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      value: controller.selectedWallet.value.isEmpty
-                          ? null
-                          : controller.selectedWallet.value,
-                      hint: const Text("Semua Wallet"),
-                      items: [
-                        const DropdownMenuItem(
-                          value: "",
-                          child: Text("Semua Wallet"),
-                        ),
-                        ...controller.walletOptions.map(
-                          (w) => DropdownMenuItem(value: w, child: Text(w)),
-                        ),
-                      ],
-                      onChanged: (val) {
-                        controller.selectedWallet.value = val ?? "";
-                      },
-                    ),
-                  ),
+                          const SizedBox(height: 16),
 
-                  const SizedBox(height: 16),
+                          // Transaction Type
+                          const Text(
+                            "Jenis Transaksi",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => Wrap(
+                              spacing: 8,
+                              children:
+                                  [
+                                    "Semua",
+                                    "Pemasukan",
+                                    "Pengeluaran",
+                                    "Transfer",
+                                  ].map((type) {
+                                    final isSelected =
+                                        controller.selectedType.value == type;
+                                    return ChoiceChip(
+                                      label: Text(type),
+                                      selected: isSelected,
+                                      onSelected: (selected) {
+                                        if (selected)
+                                          controller.selectedType.value = type;
+                                      },
+                                      selectedColor: primaryColor.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      labelStyle: TextStyle(
+                                        color: isSelected
+                                            ? primaryColor
+                                            : Colors.black87,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                      backgroundColor: Colors.grey.shade100,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                        side: BorderSide(
+                                          color: isSelected
+                                              ? primaryColor
+                                              : Colors.transparent,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                            ),
+                          ),
 
-                  // Category Filter
-                  const Text(
-                    "Kategori",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 8),
-                  Obx(
-                    () => DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      value: controller.selectedCategory.value.isEmpty
-                          ? null
-                          : controller.selectedCategory.value,
-                      hint: const Text("Semua Kategori"),
-                      items: [
-                        const DropdownMenuItem(
-                          value: "",
-                          child: Text("Semua Kategori"),
-                        ),
-                        ...controller.categoryOptions.map(
-                          (c) => DropdownMenuItem(value: c, child: Text(c)),
-                        ),
-                      ],
-                      onChanged: (val) {
-                        controller.selectedCategory.value = val ?? "";
-                      },
-                    ),
-                  ),
+                          const SizedBox(height: 16),
 
-                  const SizedBox(height: 24),
+                          // Wallet Filter
+                          const Text(
+                            "Wallet",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              value: controller.selectedWallet.value.isEmpty
+                                  ? null
+                                  : controller.selectedWallet.value,
+                              hint: const Text("Semua Wallet"),
+                              items: [
+                                const DropdownMenuItem(
+                                  value: "",
+                                  child: Text("Semua Wallet"),
+                                ),
+                                ...controller.walletOptions.map(
+                                  (w) => DropdownMenuItem(
+                                    value: w,
+                                    child: Text(w),
+                                  ),
+                                ),
+                              ],
+                              onChanged: (val) {
+                                controller.selectedWallet.value = val ?? "";
+                              },
+                            ),
+                          ),
 
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        controller.applyFilters();
-                        Get.back();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        "Terapkan Filter",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                          const SizedBox(height: 16),
+
+                          // Category Filter
+                          const Text(
+                            "Kategori",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              value: controller.selectedCategory.value.isEmpty
+                                  ? null
+                                  : controller.selectedCategory.value,
+                              hint: const Text("Semua Kategori"),
+                              items: [
+                                const DropdownMenuItem(
+                                  value: "",
+                                  child: Text("Semua Kategori"),
+                                ),
+                                ...controller.categoryOptions.map(
+                                  (c) => DropdownMenuItem(
+                                    value: c,
+                                    child: Text(c),
+                                  ),
+                                ),
+                              ],
+                              onChanged: (val) {
+                                controller.selectedCategory.value = val ?? "";
+                              },
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                controller.applyFilters();
+                                Get.back();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                "Terapkan Filter",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20), // Bottom padding
+                        ],
                       ),
                     ),
                   ),

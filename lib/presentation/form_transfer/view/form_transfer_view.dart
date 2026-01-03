@@ -71,7 +71,7 @@ class FormTransferView extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -83,7 +83,7 @@ class FormTransferView extends StatelessWidget {
             label: "Dari Wallet",
             icon: Icons.account_balance_wallet,
             iconColor: primaryColor,
-            iconBgColor: primaryColor.withOpacity(0.1),
+            iconBgColor: primaryColor.withValues(alpha: 0.1),
             dropdownLabel: "Pilih Wallet Sumber",
             controller: controller,
             items: controller.sourceWallets,
@@ -190,7 +190,7 @@ class FormTransferView extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -291,7 +291,7 @@ class FormTransferView extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -350,7 +350,7 @@ class FormTransferView extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(

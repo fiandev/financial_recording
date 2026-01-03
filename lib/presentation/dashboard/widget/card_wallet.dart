@@ -8,6 +8,19 @@ class CardWallet extends StatelessWidget {
   const CardWallet({super.key, required this.controller});
   final DashboardController controller;
 
+  // Helper untuk format compact (K, M, B, T)
+  // String _formatCompact(int value) {
+  //   if (value >= 1000000000000) {
+  //     return "${NumberFormat("#,##0.##", "id").format(value / 1000000000000)}T";
+  //   } else if (value >= 1000000000) {
+  //     return "${NumberFormat("#,##0.##", "id").format(value / 1000000000)}M";
+  //   } else if (value >= 1000000) {
+  //     return "${NumberFormat("#,##0.##", "id").format(value / 1000000)}Jt";
+  //   }
+
+  //   return NumberFormat.decimalPattern('id').format(value);
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -169,59 +182,13 @@ class CardWallet extends StatelessWidget {
                                 : "Rp ${NumberFormat.decimalPattern('id').format(controller.balance.value)}",
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 28,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
                             ),
                           ),
                         ),
                       ],
-                    ),
-
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.trending_down,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Pengeluaran Hari ini",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 10,
-                                ),
-                              ),
-                              Obx(
-                                () => Text(
-                                  controller.isObscured.value
-                                      ? "Rp ••••••••"
-                                      : "Rp ${NumberFormat.decimalPattern('id').format(controller.todayExpense.value)}",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
                     ),
                   ],
                 ),

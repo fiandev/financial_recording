@@ -103,24 +103,8 @@ class ProfileView extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 24),
-                // Section Title: Dukungan
-                const Text(
-                  "Dukungan",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                  ),
-                ),
 
-                // const SizedBox(height: 12),
-                // _buildSettingCard(
-                //   icon: Icons.coffee,
-                //   iconColor: Colors.orange,
-                //   title: "Buy me a coffee",
-                //   subtitle: "Dukung pengembang aplikasi",
-                //   onTap: () => controller.openBuyMeCoffee(),
-                // ),
+                // Section Title: Dukungan
                 const SizedBox(height: 24),
                 // Section Title: Tentang
                 const Text(
@@ -139,7 +123,7 @@ class ProfileView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -152,7 +136,7 @@ class ProfileView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
+                              color: Colors.blue.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -186,12 +170,6 @@ class ProfileView extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Dibuat dengan ❤️ oleh Ripaldiansyah untuk membantu pencatatan keuangan Anda menjadi lebih mudah.",
-                        style: TextStyle(color: Colors.black54, height: 1.5),
-                      ),
                     ],
                   ),
                 ),
@@ -212,7 +190,7 @@ class ProfileView extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 35,
-          backgroundColor: primaryColor.withOpacity(0.1),
+          backgroundColor: primaryColor.withValues(alpha: 0.1),
           child: Text(
             controller.userName.value[0],
             style: TextStyle(
@@ -273,7 +251,7 @@ class ProfileView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.1),
+                    color: iconColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: iconColor, size: 24),

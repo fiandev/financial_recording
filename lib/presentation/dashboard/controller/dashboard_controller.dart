@@ -12,6 +12,8 @@ class DashboardController extends GetxController {
   var boxTransactions = Hive.box<TransactionModel>('transactions');
   final RxInt balance = 0.obs;
   final RxInt todayExpense = 0.obs;
+  final RxInt todayIncome = 0.obs;
+
   final RxList<TransactionModel> transactions = <TransactionModel>[].obs;
   final RxBool isObscured = false.obs;
 
@@ -26,6 +28,7 @@ class DashboardController extends GetxController {
       // Simulate API call
       balance.value = 0;
       todayExpense.value = 0;
+      todayIncome.value = 0;
       for (var item in box.values) {
         balance.value += item.balance;
       }
@@ -45,6 +48,10 @@ class DashboardController extends GetxController {
 
         if (isToday && item.type == "expense") {
           todayExpense.value += item.amount;
+        }
+
+        if (isToday && item.type == "income") {
+          todayIncome.value += item.amount;
         }
       }
     } catch (e) {

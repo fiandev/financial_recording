@@ -70,19 +70,16 @@ class _QRadioFieldState extends State<QRadioField> {
                 return RadioListTile(
                   contentPadding: const EdgeInsets.all(0),
                   title: Text("${item["label"]}"),
-                  groupValue: true,
-                  value: item['checked'] ?? false,
+                  groupValue: widget.value,
+                  value: item['value'],
                   onChanged: (val) {
                     setAllItemsToFalse();
-                    final newValue = val ? false : true;
-                    items[index]['checked'] = newValue;
+                    items[index]['checked'] = true;
                     field.didChange(true);
                     setState(() {});
 
                     final String? label = items[index]['label'];
-                    final foundIndex =
-                        items.indexWhere((item) => item['label'] == label);
-                    final dynamic value = items[foundIndex]['value'];
+                    final dynamic value = items[index]['value'];
                     widget.onChanged(value, label);
                   },
                 );

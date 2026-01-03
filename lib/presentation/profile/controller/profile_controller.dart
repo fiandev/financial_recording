@@ -32,6 +32,7 @@ class ProfileController extends GetxController {
 
   void updatePrimaryColor(Color color) {
     primaryColor = color;
+    // ignore: deprecated_member_use
     DBService.set("primary_color", color.value.toString());
 
     Get.changeTheme(getDefaultTheme());

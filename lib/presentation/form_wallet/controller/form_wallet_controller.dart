@@ -218,6 +218,7 @@ class FormWalletController extends GetxController {
           name: walletName.value,
           iconPath: selectedIcon.value,
           balance: int.parse(initialBalance.value.replaceAll(".", "")),
+          // ignore: deprecated_member_use
           gradient: selectedGradient.map((c) => c.value).toList(),
         ),
       );

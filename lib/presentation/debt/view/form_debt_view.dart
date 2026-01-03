@@ -60,7 +60,7 @@ class FormDebtView extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -94,10 +94,10 @@ class FormDebtView extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.1),
+                      color: primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: primaryColor.withOpacity(0.3),
+                        color: primaryColor.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -133,12 +133,17 @@ class FormDebtView extends StatelessWidget {
                               selectedDate = pickedDate;
                               // Update UI - we'll need to rebuild the widget or use a state management solution
                               // For now, we'll show a snackbar to indicate the date was selected
-                              Get.snackbar("Tanggal Diubah", 
-                                "Tanggal pinjaman: ${DateFormat('dd MMM yyyy').format(selectedDate)}");
+                              Get.snackbar(
+                                "Tanggal Diubah",
+                                "Tanggal pinjaman: ${DateFormat('dd MMM yyyy').format(selectedDate)}",
+                              );
                             }
                           },
                           child: Text(
-                            DateFormat("dd MMM yyyy", "id").format(selectedDate),
+                            DateFormat(
+                              "dd MMM yyyy",
+                              "id",
+                            ).format(selectedDate),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -190,7 +195,7 @@ class FormDebtView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -224,7 +229,9 @@ class FormDebtView extends StatelessWidget {
                                   Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
-                                      color: primaryColor.withOpacity(0.1),
+                                      color: primaryColor.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
@@ -266,18 +273,22 @@ class FormDebtView extends StatelessWidget {
                                   const SizedBox(height: 8),
                                   GestureDetector(
                                     onTap: () async {
-                                      DateTime? pickedDate = await showDatePicker(
-                                        context: context,
-                                        initialDate: dueDate ?? DateTime.now(),
-                                        firstDate: DateTime(2000),
-                                        lastDate: DateTime(2100),
-                                      );
+                                      DateTime? pickedDate =
+                                          await showDatePicker(
+                                            context: context,
+                                            initialDate:
+                                                dueDate ?? DateTime.now(),
+                                            firstDate: DateTime(2000),
+                                            lastDate: DateTime(2100),
+                                          );
                                       if (pickedDate != null) {
                                         dueDate = pickedDate;
                                         // Since we can't update the text field directly with the QTextField approach,
                                         // we can trigger a rebuild or show a snackbar
-                                        Get.snackbar("Tanggal Diubah",
-                                          "Tanggal jatuh tempo: ${DateFormat('dd MMM yyyy').format(dueDate!)}");
+                                        Get.snackbar(
+                                          "Tanggal Diubah",
+                                          "Tanggal jatuh tempo: ${DateFormat('dd MMM yyyy').format(dueDate!)}",
+                                        );
                                       }
                                     },
                                     child: Container(
@@ -293,16 +304,20 @@ class FormDebtView extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             dueDate != null
-                                              ? DateFormat('dd MMM yyyy', 'id').format(dueDate)
-                                              : "Pilih tanggal jatuh tempo",
+                                                ? DateFormat(
+                                                    'dd MMM yyyy',
+                                                    'id',
+                                                  ).format(dueDate)
+                                                : "Pilih tanggal jatuh tempo",
                                             style: TextStyle(
                                               color: dueDate != null
-                                                ? Colors.black
-                                                : Colors.grey.shade600,
+                                                  ? Colors.black
+                                                  : Colors.grey.shade600,
                                             ),
                                           ),
                                           Icon(
@@ -319,10 +334,11 @@ class FormDebtView extends StatelessWidget {
                               QTextField(
                                 label: "Deskripsi",
                                 value: descriptionController.text,
+                                hint: "Contoh: pinjem duit buat beli crypto",
+                                validator: Validator.required,
                                 onChanged: (value) {
                                   descriptionController.text = value;
                                 },
-                                maxLines: 3,
                                 prefixIcon: Icons.description,
                               ),
                             ],
@@ -342,7 +358,7 @@ class FormDebtView extends StatelessWidget {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),
@@ -357,7 +373,10 @@ class FormDebtView extends StatelessWidget {
                   }
 
                   // Remove formatting characters (like dots or commas) before parsing
-                  String cleanAmount = amountController.text.replaceAll(RegExp(r'[^\d]'), '');
+                  String cleanAmount = amountController.text.replaceAll(
+                    RegExp(r'[^\d]'),
+                    '',
+                  );
                   double amount = double.tryParse(cleanAmount) ?? 0;
                   if (amount <= 0) {
                     Get.snackbar("Error", "Jumlah hutang harus lebih dari 0");
@@ -369,7 +388,9 @@ class FormDebtView extends StatelessWidget {
                     amount: amount,
                     date: selectedDate,
                     dueDate: dueDate,
-                    description: descriptionController.text.trim().isEmpty ? null : descriptionController.text.trim(),
+                    description: descriptionController.text.trim().isEmpty
+                        ? null
+                        : descriptionController.text.trim(),
                     isSettled: editingDebt?.isSettled ?? false,
                     settledAt: editingDebt?.settledAt,
                   );
