@@ -10,6 +10,7 @@ class ReceivableView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(ReceivableController());
     final double appBarHeight = AppBar().preferredSize.height;
+    final profileController = Get.put(ProfileController());
 
     return Obx(() {
       if (controller.isLoading.value) {
@@ -44,14 +45,16 @@ class ReceivableView extends StatelessWidget {
           backgroundColor: primaryColor,
         ),
         body: Container(
-          padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
+          padding: EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
           height: MediaQuery.of(context).size.height - appBarHeight,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(44.0),
               topRight: Radius.circular(44.0),
             ),
-            color: Colors.white,
+            color: profileController.isDarkMode.value
+                ? Colors.black87
+                : Colors.white,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,6 +227,8 @@ class ReceivableView extends StatelessWidget {
     ReceivableController controller,
     int index,
   ) {
+    final profileController = Get.put(ProfileController());
+
     Color color = Colors.purple;
     IconData icon = Icons.money;
     Color iconBg = Colors.purple.shade50;
@@ -242,7 +247,7 @@ class ReceivableView extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: profileController.isDarkMode.value ? Colors.black : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -251,7 +256,11 @@ class ReceivableView extends StatelessWidget {
             offset: const Offset(0, 5),
           ),
         ],
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(
+          color: profileController.isDarkMode.value
+              ? Colors.black54
+              : Colors.grey.shade200,
+        ),
       ),
       child: Row(
         children: [

@@ -26,6 +26,7 @@ class QTextField extends StatefulWidget {
     this.vertical,
     this.controller,
     this.isPhoneNumber,
+    this.darkMode = false,
   });
   final String? id;
   final String label;
@@ -48,6 +49,7 @@ class QTextField extends StatefulWidget {
   final Function(String)? onSubmitted;
   final TextEditingController? controller;
   final FocusNode? focusNode;
+  final bool darkMode;
 
   @override
   State<QTextField> createState() => _QTextFieldState();
@@ -155,22 +157,37 @@ class _QTextFieldState extends State<QTextField> {
           suffixIcon: icon,
           helperText: widget.helper,
           hintText: widget.hint,
-          fillColor: Colors.white,
+          fillColor: widget.darkMode ? Colors.grey[800] : Colors.white,
+          filled: true,
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primaryColor),
+            borderSide: BorderSide(
+              color: widget.darkMode ? Colors.grey.shade600 : primaryColor,
+            ),
             borderRadius: BorderRadius.all(Radius.circular(8)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primaryColor),
+            borderSide: BorderSide(
+              color: widget.darkMode ? Colors.grey.shade400 : primaryColor,
+            ),
             borderRadius: BorderRadius.all(Radius.circular(8)),
           ),
           errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: dangerColor),
+            borderSide: BorderSide(
+              color: widget.darkMode ? Colors.red.shade400 : dangerColor,
+            ),
             borderRadius: BorderRadius.all(Radius.circular(8)),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: primaryColor),
+            borderSide: BorderSide(
+              color: widget.darkMode ? Colors.grey.shade400 : primaryColor,
+            ),
             borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+          labelStyle: TextStyle(
+            color: widget.darkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+          ),
+          hintStyle: TextStyle(
+            color: widget.darkMode ? Colors.grey.shade500 : Colors.grey.shade400,
           ),
         ),
         onChanged: (value) {

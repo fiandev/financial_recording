@@ -9,6 +9,7 @@ class DebtView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(DebtController());
+    final profileController = Get.put(ProfileController());
     final double appBarHeight = AppBar().preferredSize.height;
 
     return Obx(() {
@@ -23,14 +24,18 @@ class DebtView extends StatelessWidget {
       }
 
       return Scaffold(
-        backgroundColor: primaryColor,
+        backgroundColor: profileController.isDarkMode.value
+            ? Colors.black87
+            : primaryColor,
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             "Daftar Hutang",
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: profileController.isDarkMode.value
+                  ? Colors.white
+                  : Colors.white,
             ),
           ),
           actions: [
@@ -38,20 +43,30 @@ class DebtView extends StatelessWidget {
               onPressed: () {
                 Get.to(() => const ProfileView());
               },
-              icon: const Icon(Icons.settings, color: Colors.white, size: 32.0),
+              icon: Icon(
+                Icons.settings,
+                color: profileController.isDarkMode.value
+                    ? Colors.white
+                    : Colors.white,
+                size: 32.0,
+              ),
             ),
           ],
-          backgroundColor: primaryColor,
+          backgroundColor: profileController.isDarkMode.value
+              ? Colors.grey[800]
+              : primaryColor,
         ),
         body: Container(
           padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
           height: MediaQuery.of(context).size.height - appBarHeight,
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(44.0),
               topRight: Radius.circular(44.0),
             ),
-            color: Colors.white,
+            color: profileController.isDarkMode.value
+                ? Colors.grey[800]
+                : Colors.white,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,10 +78,14 @@ class DebtView extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.1),
+                        color: profileController.isDarkMode.value
+                            ? Colors.orange.withOpacity(0.2)
+                            : Colors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Colors.orange.withValues(alpha: 0.3),
+                          color: profileController.isDarkMode.value
+                              ? Colors.orange.withOpacity(0.5)
+                              : Colors.orange.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Column(
@@ -76,8 +95,10 @@ class DebtView extends StatelessWidget {
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                decoration: BoxDecoration(
+                                  color: profileController.isDarkMode.value
+                                      ? Colors.grey[700]
+                                      : Colors.white,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -87,11 +108,13 @@ class DebtView extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              const Text(
+                              Text(
                                 "Total Hutang",
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.orange,
+                                  color: profileController.isDarkMode.value
+                                      ? Colors.orange.shade200
+                                      : Colors.orange,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -105,10 +128,12 @@ class DebtView extends StatelessWidget {
                             );
                             return Text(
                               "Rp. ${NumberFormat.decimalPattern('id').format(totalDebt)}",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.orange,
+                                color: profileController.isDarkMode.value
+                                    ? Colors.orange.shade200
+                                    : Colors.orange,
                               ),
                             );
                           }),
@@ -121,10 +146,14 @@ class DebtView extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.1),
+                        color: profileController.isDarkMode.value
+                            ? Colors.green.withOpacity(0.2)
+                            : Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Colors.green.withValues(alpha: 0.3),
+                          color: profileController.isDarkMode.value
+                              ? Colors.green.withOpacity(0.5)
+                              : Colors.green.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Column(
@@ -134,8 +163,10 @@ class DebtView extends StatelessWidget {
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                decoration: BoxDecoration(
+                                  color: profileController.isDarkMode.value
+                                      ? Colors.grey[700]
+                                      : Colors.white,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -145,11 +176,13 @@ class DebtView extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              const Text(
+                              Text(
                                 "Lunas",
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.green,
+                                  color: profileController.isDarkMode.value
+                                      ? Colors.green.shade200
+                                      : Colors.green,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -162,10 +195,12 @@ class DebtView extends StatelessWidget {
                                 .length;
                             return Text(
                               "${settledDebt} hutang",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                                color: profileController.isDarkMode.value
+                                    ? Colors.green.shade200
+                                    : Colors.green,
                               ),
                             );
                           }),
@@ -183,12 +218,22 @@ class DebtView extends StatelessWidget {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.money_off, size: 60, color: Colors.grey),
-                          SizedBox(height: 10),
+                        children: [
+                          Icon(
+                            Icons.money_off,
+                            size: 60,
+                            color: profileController.isDarkMode.value
+                                ? Colors.grey.shade600
+                                : Colors.grey,
+                          ),
+                          const SizedBox(height: 10),
                           Text(
                             "Tidak ada data",
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(
+                              color: profileController.isDarkMode.value
+                                  ? Colors.grey.shade600
+                                  : Colors.grey,
+                            ),
                           ),
                         ],
                       ),
@@ -200,7 +245,7 @@ class DebtView extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 20),
                     itemBuilder: (context, index) {
                       final item = controller.debts[index];
-                      return _buildDebtItem(item, controller, index);
+                      return _buildDebtItem(item, controller, index, profileController);
                     },
                   );
                 }),
@@ -211,42 +256,57 @@ class DebtView extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           heroTag: "debt_fab", // Unique hero tag to avoid conflicts
           onPressed: () => Get.to(() => FormDebtView()),
-          backgroundColor: primaryColor,
-          child: const Icon(Icons.add, color: Colors.white),
+          backgroundColor: profileController.isDarkMode.value
+              ? Colors.grey[700]
+              : primaryColor,
+          child: Icon(
+            Icons.add,
+            color: profileController.isDarkMode.value
+                ? Colors.white
+                : Colors.white,
+          ),
         ),
       );
     });
   }
 
-  Widget _buildDebtItem(DebtModel item, DebtController controller, int index) {
-    Color color = Colors.orange;
+  Widget _buildDebtItem(DebtModel item, DebtController controller, int index, ProfileController profileController) {
+    Color color = profileController.isDarkMode.value ? Colors.orange.shade300 : Colors.orange;
     IconData icon = Icons.money_off;
-    Color iconBg = Colors.orange.shade50;
+    Color iconBg = profileController.isDarkMode.value ? Colors.grey[700]! : (item.isSettled ? Colors.green.shade50 : item.dueDate != null && item.dueDate!.isBefore(DateTime.now()) && !item.isSettled ? Colors.red.shade50 : Colors.orange.shade50);
 
     if (item.isSettled) {
-      color = Colors.green;
+      color = profileController.isDarkMode.value ? Colors.green.shade300 : Colors.green;
       icon = Icons.check_circle;
-      iconBg = Colors.green.shade50;
+      iconBg = profileController.isDarkMode.value ? Colors.grey[700]! : Colors.green.shade50;
     } else if (item.dueDate != null && item.dueDate!.isBefore(DateTime.now())) {
-      color = Colors.red;
+      color = profileController.isDarkMode.value ? Colors.red.shade300 : Colors.red;
       icon = Icons.money_off;
-      iconBg = Colors.red.shade50;
+      iconBg = profileController.isDarkMode.value ? Colors.grey[700]! : Colors.red.shade50;
     }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: profileController.isDarkMode.value
+            ? Colors.grey[800]
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: profileController.isDarkMode.value
+                ? Colors.grey.shade800.withValues(alpha: 0.5)
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
         ],
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(
+          color: profileController.isDarkMode.value
+              ? Colors.grey.shade700
+              : Colors.grey.shade100,
+        ),
       ),
       child: Row(
         children: [
@@ -270,15 +330,23 @@ class DebtView extends StatelessWidget {
                 children: [
                   Text(
                     item.creditorName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
+                      color: profileController.isDarkMode.value
+                          ? Colors.white
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     "Jumlah: Rp ${NumberFormat.currency(locale: 'id_ID', decimalDigits: 0).format(item.amount)}",
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: profileController.isDarkMode.value
+                          ? Colors.grey[400]
+                          : Colors.grey[600],
+                    ),
                   ),
                   if (item.dueDate != null)
                     Text(
@@ -286,10 +354,16 @@ class DebtView extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         color: item.isSettled
-                            ? Colors.grey[400]
+                            ? (profileController.isDarkMode.value
+                                ? Colors.grey[500]
+                                : Colors.grey[400])
                             : item.dueDate!.isBefore(DateTime.now())
-                            ? Colors.red[400]
-                            : Colors.orange[400],
+                            ? (profileController.isDarkMode.value
+                                ? Colors.red[300]
+                                : Colors.red[400])
+                            : (profileController.isDarkMode.value
+                                ? Colors.orange[300]
+                                : Colors.orange[400]),
                       ),
                     ),
                 ],
@@ -300,33 +374,51 @@ class DebtView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: item.isSettled
-                  ? Colors.green.withValues(alpha: 0.1)
+                  ? (profileController.isDarkMode.value
+                      ? Colors.green.withOpacity(0.2)
+                      : Colors.green.withValues(alpha: 0.1))
                   : (item.dueDate != null &&
                         item.dueDate!.isBefore(DateTime.now()) &&
                         !item.isSettled)
-                  ? Colors.red.withValues(alpha: 0.1)
-                  : Colors.orange.withValues(alpha: 0.1),
+                  ? (profileController.isDarkMode.value
+                      ? Colors.red.withOpacity(0.2)
+                      : Colors.red.withValues(alpha: 0.1))
+                  : (profileController.isDarkMode.value
+                      ? Colors.orange.withOpacity(0.2)
+                      : Colors.orange.withValues(alpha: 0.1)),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: item.isSettled
-                    ? Colors.green.withValues(alpha: 0.3)
+                    ? (profileController.isDarkMode.value
+                        ? Colors.green.withOpacity(0.5)
+                        : Colors.green.withValues(alpha: 0.3))
                     : (item.dueDate != null &&
                           item.dueDate!.isBefore(DateTime.now()) &&
                           !item.isSettled)
-                    ? Colors.red.withValues(alpha: 0.3)
-                    : Colors.orange.withValues(alpha: 0.3),
+                    ? (profileController.isDarkMode.value
+                        ? Colors.red.withOpacity(0.5)
+                        : Colors.red.withValues(alpha: 0.3))
+                    : (profileController.isDarkMode.value
+                        ? Colors.orange.withOpacity(0.5)
+                        : Colors.orange.withValues(alpha: 0.3)),
               ),
             ),
             child: Text(
               item.isSettled ? "Lunas" : "Belum Lunas",
               style: TextStyle(
                 color: item.isSettled
-                    ? Colors.green
+                    ? (profileController.isDarkMode.value
+                        ? Colors.green.shade300
+                        : Colors.green)
                     : (item.dueDate != null &&
                           item.dueDate!.isBefore(DateTime.now()) &&
                           !item.isSettled)
-                    ? Colors.red
-                    : Colors.orange,
+                    ? (profileController.isDarkMode.value
+                        ? Colors.red.shade300
+                        : Colors.red)
+                    : (profileController.isDarkMode.value
+                        ? Colors.orange.shade300
+                        : Colors.orange),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -350,14 +442,18 @@ class DebtView extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: profileController.isDarkMode.value
+                            ? Colors.grey[800]
+                            : Colors.white,
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
+                        boxShadow: [
                           BoxShadow(
-                            color: Colors.black26,
+                            color: profileController.isDarkMode.value
+                                ? Colors.grey.shade800.withValues(alpha: 0.5)
+                                : Colors.black26,
                             blurRadius: 10.0,
-                            offset: Offset(0.0, 10.0),
+                            offset: const Offset(0.0, 10.0),
                           ),
                         ],
                       ),
@@ -368,28 +464,40 @@ class DebtView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
+                              color: profileController.isDarkMode.value
+                                  ? Colors.red.withOpacity(0.2)
+                                  : Colors.red.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.delete_forever_rounded,
                               size: 40,
-                              color: Colors.red,
+                              color: profileController.isDarkMode.value
+                                  ? Colors.red.shade300
+                                  : Colors.red,
                             ),
                           ),
                           const SizedBox(height: 20),
-                          const Text(
+                          Text(
                             "Konfirmasi Hapus",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: profileController.isDarkMode.value
+                                  ? Colors.white
+                                  : null,
                             ),
                           ),
                           const SizedBox(height: 10),
-                          const Text(
+                          Text(
                             "Apakah Anda yakin ingin menghapus data transaksi ini?",
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: profileController.isDarkMode.value
+                                  ? Colors.grey[400]
+                                  : Colors.grey,
+                            ),
                           ),
                           const SizedBox(height: 20),
                           Row(
@@ -402,8 +510,20 @@ class DebtView extends StatelessWidget {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
+                                    side: BorderSide(
+                                      color: profileController.isDarkMode.value
+                                          ? Colors.grey.shade600
+                                          : Colors.grey.shade400,
+                                    ),
                                   ),
-                                  child: const Text("Batal"),
+                                  child: Text(
+                                    "Batal",
+                                    style: TextStyle(
+                                      color: profileController.isDarkMode.value
+                                          ? Colors.white
+                                          : null,
+                                    ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -442,9 +562,21 @@ class DebtView extends StatelessWidget {
                 value: 'edit',
                 child: Row(
                   children: [
-                    Icon(Icons.edit, color: Colors.blue.shade400),
+                    Icon(
+                      Icons.edit,
+                      color: profileController.isDarkMode.value
+                          ? Colors.blue.shade300
+                          : Colors.blue.shade400,
+                    ),
                     const SizedBox(width: 8),
-                    const Text('Edit'),
+                    Text(
+                      'Edit',
+                      style: TextStyle(
+                        color: profileController.isDarkMode.value
+                            ? Colors.white
+                            : null,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -452,9 +584,21 @@ class DebtView extends StatelessWidget {
                 value: 'settle',
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green.shade400),
+                    Icon(
+                      Icons.check_circle,
+                      color: profileController.isDarkMode.value
+                          ? Colors.green.shade300
+                          : Colors.green.shade400,
+                    ),
                     const SizedBox(width: 8),
-                    Text(item.isSettled ? 'Batalkan Lunas' : 'Tandai Lunas'),
+                    Text(
+                      item.isSettled ? 'Batalkan Lunas' : 'Tandai Lunas',
+                      style: TextStyle(
+                        color: profileController.isDarkMode.value
+                            ? Colors.white
+                            : null,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -462,9 +606,21 @@ class DebtView extends StatelessWidget {
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete, color: Colors.red.shade400),
+                    Icon(
+                      Icons.delete,
+                      color: profileController.isDarkMode.value
+                          ? Colors.red.shade300
+                          : Colors.red.shade400,
+                    ),
                     const SizedBox(width: 8),
-                    const Text('Hapus'),
+                    Text(
+                      'Hapus',
+                      style: TextStyle(
+                        color: profileController.isDarkMode.value
+                            ? Colors.white
+                            : null,
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -15,6 +15,7 @@ class FormReceivableView extends StatelessWidget {
         Get.isRegistered<ReceivableController>()
         ? Get.find<ReceivableController>()
         : Get.put(ReceivableController());
+    final profileController = Get.put(ProfileController());
 
     // Initialize form values
     final TextEditingController debtorNameController = TextEditingController(
@@ -30,20 +31,30 @@ class FormReceivableView extends StatelessWidget {
     DateTime? dueDate = editingReceivable?.dueDate;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: profileController.isDarkMode.value
+          ? Colors.black87
+          : Colors.grey[50],
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: profileController.isDarkMode.value
+            ? Colors.black87
+            : Colors.white,
         centerTitle: true,
         title: Text(
           editingReceivable == null ? "Tambah Piutang" : "Edit Piutang",
-          style: const TextStyle(
-            color: Colors.black87,
+          style: TextStyle(
+            color: profileController.isDarkMode.value
+                ? Colors.white
+                : Colors.black87,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
-        iconTheme: const IconThemeData(color: Colors.black87),
+        iconTheme: IconThemeData(
+          color: profileController.isDarkMode.value
+              ? Colors.white
+              : Colors.black87,
+        ),
       ),
       body: Form(
         key: GlobalKey<FormState>(),
@@ -54,14 +65,18 @@ class FormReceivableView extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: profileController.isDarkMode.value
+                    ? Colors.grey[800]
+                    : Colors.white,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(24),
                   bottomRight: Radius.circular(24),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: profileController.isDarkMode.value
+                        ? Colors.grey.shade800.withValues(alpha: 0.5)
+                        : Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -79,6 +94,7 @@ class FormReceivableView extends StatelessWidget {
                       debtorNameController.text = value;
                     },
                     prefixIcon: Icons.person,
+                    darkMode: profileController.isDarkMode.value,
                   ),
                   const SizedBox(height: 16),
                   QTextField(
@@ -90,15 +106,20 @@ class FormReceivableView extends StatelessWidget {
                     },
                     isNumberOnly: true,
                     prefixIcon: Icons.monetization_on,
+                    darkMode: profileController.isDarkMode.value,
                   ),
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: primaryColor.withValues(alpha: 0.1),
+                      color: profileController.isDarkMode.value
+                          ? primaryColor.withOpacity(0.2)
+                          : primaryColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: primaryColor.withValues(alpha: 0.3),
+                        color: profileController.isDarkMode.value
+                            ? primaryColor.withOpacity(0.5)
+                            : primaryColor.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -108,16 +129,20 @@ class FormReceivableView extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.account_balance_wallet,
-                              color: primaryColor,
+                              color: profileController.isDarkMode.value
+                                  ? primaryColor
+                                  : primaryColor,
                               size: 20,
                             ),
                             const SizedBox(width: 8),
-                            const Text(
+                            Text(
                               "Tanggal Peminjaman",
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                                color: profileController.isDarkMode.value
+                                    ? Colors.white
+                                    : Colors.black87,
                               ),
                             ),
                           ],
@@ -129,6 +154,26 @@ class FormReceivableView extends StatelessWidget {
                               initialDate: selectedDate,
                               firstDate: DateTime(2000),
                               lastDate: DateTime(2100),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: Theme.of(context).colorScheme
+                                        .copyWith(
+                                          primary: primaryColor,
+                                          onPrimary: Colors.white,
+                                          surface:
+                                              profileController.isDarkMode.value
+                                              ? Colors.grey[900]
+                                              : Colors.white,
+                                          onSurface:
+                                              profileController.isDarkMode.value
+                                              ? Colors.white
+                                              : Colors.black,
+                                        ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
                             );
                             if (pickedDate != null) {
                               selectedDate = pickedDate;
@@ -146,7 +191,9 @@ class FormReceivableView extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: primaryColor,
+                              color: profileController.isDarkMode.value
+                                  ? primaryColor
+                                  : primaryColor,
                             ),
                           ),
                         ),
@@ -165,12 +212,14 @@ class FormReceivableView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     "Detail Piutang",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: profileController.isDarkMode.value
+                          ? Colors.white
+                          : Colors.black87,
                     ),
                   ),
                 ],
@@ -190,16 +239,24 @@ class FormReceivableView extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(bottom: 16.0),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: profileController.isDarkMode.value
+                          ? Colors.grey[800]
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
+                          color: profileController.isDarkMode.value
+                              ? Colors.grey.shade800.withValues(alpha: 0.2)
+                              : Colors.black.withValues(alpha: 0.8),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
                       ],
-                      border: Border.all(color: Colors.grey.shade100),
+                      border: Border.all(
+                        color: profileController.isDarkMode.value
+                            ? Colors.grey.shade700
+                            : Colors.grey.shade100,
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,13 +268,19 @@ class FormReceivableView extends StatelessWidget {
                             vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey[50],
+                            color: profileController.isDarkMode.value
+                                ? Colors.grey[900]
+                                : Colors.grey[50],
                             borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(16),
                               topRight: Radius.circular(16),
                             ),
                             border: Border(
-                              bottom: BorderSide(color: Colors.grey.shade200),
+                              bottom: BorderSide(
+                                color: profileController.isDarkMode.value
+                                    ? Colors.grey.shade800
+                                    : Colors.grey.shade200,
+                              ),
                             ),
                           ),
                           child: Row(
@@ -228,24 +291,28 @@ class FormReceivableView extends StatelessWidget {
                                   Container(
                                     padding: const EdgeInsets.all(6),
                                     decoration: BoxDecoration(
-                                      color: primaryColor.withValues(
-                                        alpha: 0.1,
-                                      ),
+                                      color: profileController.isDarkMode.value
+                                          ? primaryColor.withOpacity(0.2)
+                                          : primaryColor.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
                                       Icons.description,
                                       size: 16,
-                                      color: primaryColor,
+                                      color: profileController.isDarkMode.value
+                                          ? primaryColor
+                                          : primaryColor,
                                     ),
                                   ),
                                   const SizedBox(width: 10),
-                                  const Text(
+                                  Text(
                                     "Detail Informasi",
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
+                                      color: profileController.isDarkMode.value
+                                          ? Colors.white
+                                          : Colors.black87,
                                     ),
                                   ),
                                 ],
@@ -266,20 +333,46 @@ class FormReceivableView extends StatelessWidget {
                                     "Tanggal Jatuh Tempo",
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600],
+                                      color: profileController.isDarkMode.value
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
                                     ),
                                   ),
                                   const SizedBox(height: 8),
                                   GestureDetector(
                                     onTap: () async {
-                                      DateTime? pickedDate =
-                                          await showDatePicker(
-                                            context: context,
-                                            initialDate:
-                                                dueDate ?? DateTime.now(),
-                                            firstDate: DateTime(2000),
-                                            lastDate: DateTime(2100),
+                                      DateTime?
+                                      pickedDate = await showDatePicker(
+                                        context: context,
+                                        initialDate: dueDate ?? DateTime.now(),
+                                        firstDate: DateTime(2000),
+                                        lastDate: DateTime(2100),
+                                        builder: (context, child) {
+                                          return Theme(
+                                            data: Theme.of(context).copyWith(
+                                              colorScheme: Theme.of(context)
+                                                  .colorScheme
+                                                  .copyWith(
+                                                    primary: primaryColor,
+                                                    onPrimary: Colors.white,
+                                                    surface:
+                                                        profileController
+                                                            .isDarkMode
+                                                            .value
+                                                        ? Colors.grey[900]
+                                                        : Colors.white,
+                                                    onSurface:
+                                                        profileController
+                                                            .isDarkMode
+                                                            .value
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                  ),
+                                            ),
+                                            child: child!,
                                           );
+                                        },
+                                      );
                                       if (pickedDate != null) {
                                         dueDate = pickedDate;
                                         Get.snackbar(
@@ -296,7 +389,10 @@ class FormReceivableView extends StatelessWidget {
                                       ),
                                       decoration: BoxDecoration(
                                         border: Border.all(
-                                          color: Colors.grey.shade400,
+                                          color:
+                                              profileController.isDarkMode.value
+                                              ? Colors.grey.shade600
+                                              : Colors.grey.shade400,
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
@@ -312,14 +408,24 @@ class FormReceivableView extends StatelessWidget {
                                                   ).format(dueDate)
                                                 : "Pilih tanggal jatuh tempo",
                                             style: TextStyle(
-                                              color: dueDate != null
-                                                  ? Colors.black
-                                                  : Colors.grey.shade600,
+                                              color:
+                                                  profileController
+                                                      .isDarkMode
+                                                      .value
+                                                  ? Colors.white
+                                                  : (dueDate != null
+                                                        ? Colors.black
+                                                        : Colors.grey.shade600),
                                             ),
                                           ),
                                           Icon(
                                             Icons.event,
-                                            color: primaryColor,
+                                            color:
+                                                profileController
+                                                    .isDarkMode
+                                                    .value
+                                                ? primaryColor
+                                                : primaryColor,
                                           ),
                                         ],
                                       ),
@@ -336,6 +442,7 @@ class FormReceivableView extends StatelessWidget {
                                 },
                                 hint: "Contoh: Budi pinjem buat beli crypto",
                                 prefixIcon: Icons.description,
+                                darkMode: profileController.isDarkMode.value,
                               ),
                             ],
                           ),
@@ -351,10 +458,14 @@ class FormReceivableView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: profileController.isDarkMode.value
+                    ? Colors.grey[800]
+                    : Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: profileController.isDarkMode.value
+                        ? Colors.grey.shade800.withValues(alpha: 0.2)
+                        : Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),
