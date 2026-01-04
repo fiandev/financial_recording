@@ -2,40 +2,72 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:financial_recording/core.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:financial_recording/models/category_model/category_model.dart';
-import 'package:financial_recording/models/transaction_model/transaction_model.dart';
-import 'package:financial_recording/models/wallet_model/wallet_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:url_launcher/url_launcher.dart';
-// import 'package:package_info_plus/package_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfileController extends GetxController {
   final RxString userName = "User".obs;
   final RxString userEmail = "user@example.com".obs;
   final RxString appVersion = "1.0.0".obs;
   final RxString buildNumber = "1".obs;
+  final RxBool isDarkMode = false.obs;
 
   @override
   void onInit() {
     super.onInit();
-    _loadPackageInfo();
+
+    // --- FIX UTAMA DISINI ---
+    // Membungkus proses load data agar dijalankan SETELAH frame UI selesai dirender.
+    // Ini solusi untuk error "setState() called during build".
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadPackageInfo();
+      _loadDarkModePreference();
+    });
+  }
+
+  void _loadDarkModePreference() {
+    // Pastikan DBService sudah diinit di main.dart
+    bool savedDarkMode = DBService.get("dark_mode") == "true";
+
+    if (savedDarkMode) {
+      isDarkMode.value = savedDarkMode;
+      _updateAppTheme();
+    }
+  }
+
+  void toggleDarkMode() {
+    isDarkMode.value = !isDarkMode.value;
+
+    DBService.set("dark_mode", isDarkMode.value.toString());
+    _updateAppTheme();
+  }
+
+  void _updateAppTheme() {
+    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
 
   Future<void> _loadPackageInfo() async {
-    // Mock or use package_info_plus if added.
-    // Since user didn't ask for package_info, I'll keep hardcoded or try to use it if available.
-    // I noticed package_info_plus wasn't installed. I'll just keep the variable or mock it.
-    // Reverting to mock to avoid build error.
+    try {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      appVersion.value = packageInfo.version;
+      buildNumber.value = packageInfo.buildNumber;
+    } catch (e) {
+      print("Error loading package info: $e");
+    }
   }
 
   void updatePrimaryColor(Color color) {
+    // Pastikan variable global primaryColor di core.dart bukan final
     primaryColor = color;
-    // ignore: deprecated_member_use
     DBService.set("primary_color", color.value.toString());
 
+    // Memaksa update tema
     Get.changeTheme(getDefaultTheme());
+    // Force App Update kadang tidak perlu jika state management sudah reaktif,
+    // tapi jika diperlukan biarkan saja:
     Get.forceAppUpdate();
 
     Get.snackbar(
@@ -51,7 +83,9 @@ class ProfileController extends GetxController {
   }
 
   Future<void> openBuyMeCoffee() async {
-    final Uri url = Uri.parse(''); // Replace with actual
+    final Uri url = Uri.parse(
+      'https://saweria.co/fiandev',
+    ); // Ganti URL sesuai kebutuhan
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       Get.snackbar(
         "Error",
@@ -74,7 +108,7 @@ class ProfileController extends GetxController {
         "wallets": walletBox.values
             .map(
               (w) => {
-                "id": w.key.toString(), // Hive key might be int or string
+                // "id": w.key.toString(), // Key di-generate ulang saat restore
                 "name": w.name,
                 "balance": w.balance,
                 "todayExpense": w.todayExpense,
@@ -86,7 +120,6 @@ class ProfileController extends GetxController {
         "categories": categoryBox.values
             .map(
               (c) => {
-                "id": c.key.toString(),
                 "name": c.name,
                 "iconPath": c.iconPath,
                 "type": c.type,
@@ -100,7 +133,8 @@ class ProfileController extends GetxController {
                 "walletName": t.walletName,
                 "categoryName": t.categoryName,
                 "amount": t.amount,
-                "items": t.items,
+                "items": t
+                    .items, // Pastikan items adalah List<Map> yang serializable
                 "createdAt": t.createdAt.millisecondsSinceEpoch,
                 "type": t.type,
               },
@@ -112,7 +146,7 @@ class ProfileController extends GetxController {
 
       // Save file
       String? outputFile = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Backup File',
+        dialogTitle: 'Simpan File Backup',
         fileName:
             'financial_backup_${DateTime.now().millisecondsSinceEpoch}.json',
         type: FileType.custom,
@@ -165,17 +199,16 @@ class ProfileController extends GetxController {
         await walletBox.clear();
         if (data["wallets"] != null) {
           for (var item in data["wallets"]) {
-            // Handle List<dynamic> to List<int> for gradient
             List<int> gradient = (item["gradient"] as List)
                 .map((e) => e as int)
                 .toList();
 
             var w = WalletModel(
               name: item["name"],
-              balance: item["balance"],
-              iconPath: item["iconPath"] ?? null,
+              balance: (item["balance"] as num).toInt(), // Safety cast
+              iconPath: item["iconPath"],
               gradient: gradient,
-              todayExpense: item["todayExpense"] ?? null,
+              todayExpense: (item["todayExpense"] as num?)?.toInt(),
             );
             await walletBox.add(w);
           }
@@ -187,39 +220,11 @@ class ProfileController extends GetxController {
         if (data["categories"] != null) {
           for (var item in data["categories"]) {
             var c = CategoryModel(
-              /* id: item["id"], */
-              // ID generated by Hive usually, or if model has ID field
               name: item["name"],
-              iconPath: item["iconPath"] ?? null,
+              iconPath: item["iconPath"],
               type: item["type"],
-              color: item["color"] ?? null,
-              // Note: CategoryModel constructor might require 'id' if checking older code,
-              // but view showed 'required this.name, ...' and 'id' as @HiveField?
-              // Wait, previous view showed CategoryModel had `required this.name`, `required this.iconPath`.
-              // The ID field in HiveObject is `key`. The model definition showed `id` was passed in seed?
-              // Let's check CategoryModel definition I viewed earlier.
-              // It had `id` in `_seedData` in main.dart: `id: "cat_1"`.
-              // BUT the `CategoryModel` file I viewed (Step 606) constructor:
-              /*
-                  CategoryModel({
-                    required this.name,
-                    required this.iconPath,
-                    required this.type,
-                    this.color,
-                  });
-               */
-              // IT DOES NOT HAVE `id` in constructor!
-              // So my `main.dart` seed is passing `id` which might be error if constructor doesn't take it?
-              // Wait, Step 606 shows NO `id` in constructor.
-              // Step 590 (main.dart edit) passes `id: "cat_1"`.
-              // This implies `CategoryModel` constructor in `main.dart` usage is WRONG or I missed something.
-              // OR, the `CategoryModel` has named parameter `id`?
-              // Step 606 showed: `class CategoryModel extends HiveObject ... @HiveField(0) String name; ...`
-              // It did NOT show an `id` field in the class body!
-              // So `id` in `main.dart` seed is definitely WRONG. I must fix `main.dart` seed again later or now.
-              // But for Restore, I will follow the Constructor.
+              color: item["color"],
             );
-            // Manually set ID if needed? HiveObject handles keys.
             await categoryBox.add(c);
           }
         }
@@ -232,8 +237,8 @@ class ProfileController extends GetxController {
             var t = TransactionModel(
               walletName: item["walletName"],
               categoryName: item["categoryName"],
-              amount: item["amount"],
-              items: List<Map<String, dynamic>>.from(item["items"]),
+              amount: (item["amount"] as num).toInt(),
+              items: List<Map<String, dynamic>>.from(item["items"] ?? []),
               createdAt: DateTime.fromMillisecondsSinceEpoch(item["createdAt"]),
               type: item["type"],
             );
@@ -243,7 +248,7 @@ class ProfileController extends GetxController {
 
         Get.snackbar(
           "Restore Berhasil",
-          "Data telah dipulihkan. Restart aplikasi untuk hasil maksimal.",
+          "Data telah dipulihkan. Restart aplikasi direkomendasikan.",
           backgroundColor: Colors.green,
           colorText: Colors.white,
           mainButton: TextButton(
@@ -251,9 +256,6 @@ class ProfileController extends GetxController {
             child: const Icon(Icons.close, color: Colors.white),
           ),
         );
-
-        // Optional: Force restart or just reload controllers
-        // Get.offAll(const MainApp());
       }
     } catch (e) {
       print(e);
@@ -271,6 +273,7 @@ class ProfileController extends GetxController {
   }
 
   void logout() async {
+    // exit(0) tidak disarankan oleh Apple/Google Play, tapi jika kamu mau force close:
     exit(0);
   }
 }

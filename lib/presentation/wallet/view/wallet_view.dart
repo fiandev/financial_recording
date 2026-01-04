@@ -9,12 +9,13 @@ class WalletView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(WalletController());
     final double appBarHeight = AppBar().preferredSize.height;
+    final profileController = Get.put(ProfileController());
 
     return Obx(() {
       return Scaffold(
         backgroundColor: primaryColor,
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             "Dompet",
             style: TextStyle(
               fontSize: 18.0,
@@ -27,21 +28,29 @@ class WalletView extends StatelessWidget {
               onPressed: () {
                 Get.to(() => const ProfileView());
               },
-              icon: const Icon(Icons.settings, color: Colors.white, size: 32.0),
+              icon: Icon(
+                Icons.settings,
+                color: profileController.isDarkMode.value
+                    ? Colors.black54
+                    : Colors.white,
+                size: 32.0,
+              ),
             ),
           ],
           backgroundColor: primaryColor,
         ),
         body: Container(
           height: MediaQuery.of(context).size.height - appBarHeight,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(44.0),
               topRight: Radius.circular(44.0),
             ),
-            color: Colors.white,
+            color: profileController.isDarkMode.value
+                ? Colors.black87
+                : Colors.white,
           ),
-          child: _buildWalletList(controller),
+          child: _buildWalletList(controller, profileController),
         ),
         floatingActionButton: FloatingActionButton(
           heroTag: "btn_add_wallet",
@@ -49,13 +58,21 @@ class WalletView extends StatelessWidget {
             Get.to(() => const FormWalletView());
           },
           backgroundColor: primaryColor,
-          child: const Icon(Icons.add, color: Colors.white),
+          child: Icon(
+            Icons.add,
+            color: profileController.isDarkMode.value
+                ? Colors.black54
+                : Colors.white,
+          ),
         ),
       );
     });
   }
 
-  Widget _buildWalletList(WalletController controller) {
+  Widget _buildWalletList(
+    WalletController controller,
+    ProfileController profileController,
+  ) {
     return ListView.separated(
       padding: const EdgeInsets.all(30),
       itemCount: controller.wallets.length,
@@ -71,6 +88,7 @@ class WalletView extends StatelessWidget {
           gradient: colors,
           index: index,
           controller: controller,
+          profileController: profileController,
         );
       },
     );
@@ -84,6 +102,7 @@ class WalletView extends StatelessWidget {
     required List<Color> gradient,
     required int index,
     required WalletController controller,
+    required ProfileController profileController,
   }) {
     return TweenAnimationBuilder(
       duration: Duration(milliseconds: 400 + (index * 100)),
@@ -130,7 +149,9 @@ class WalletView extends StatelessWidget {
                     height: 120,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: profileController.isDarkMode.value
+                          ? Colors.black26
+                          : Colors.white.withValues(alpha: 0.1),
                     ),
                   ),
                 ),
@@ -142,7 +163,9 @@ class WalletView extends StatelessWidget {
                     height: 80,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: profileController.isDarkMode.value
+                          ? Colors.black12
+                          : Colors.white.withValues(alpha: 0.08),
                     ),
                   ),
                 ),
@@ -159,7 +182,7 @@ class WalletView extends StatelessWidget {
                         children: [
                           Text(
                             name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -171,10 +194,12 @@ class WalletView extends StatelessWidget {
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
+                              color: profileController.isDarkMode.value
+                                  ? Colors.black54
+                                  : Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Text(
+                            child: Text(
                               "Active",
                               style: TextStyle(
                                 color: Colors.white,
@@ -190,7 +215,7 @@ class WalletView extends StatelessWidget {
                         children: [
                           Text(
                             "Rp ${_formatCurrency(balance)}",
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -210,16 +235,20 @@ class WalletView extends StatelessWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
-                                  Icons.trending_down,
-                                  color: Colors.white70,
+                                Icon(
+                                  todayExpense < 0
+                                      ? Icons.trending_down
+                                      : Icons.trending_up,
+                                  color: todayExpense < 0
+                                      ? Colors.red
+                                      : Colors.green,
                                   size: 12,
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
                                   "Hari ini: Rp ${_formatCurrency(todayExpense)}",
-                                  style: const TextStyle(
-                                    color: Colors.white70,
+                                  style: TextStyle(
+                                    color: Colors.white,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
                                   ),

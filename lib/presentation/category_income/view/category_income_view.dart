@@ -8,13 +8,16 @@ class CategoryIncomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(CategoryIncomeController());
+    final profileController = Get.put(ProfileController());
 
     return Obx(() {
       return Scaffold(
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [const Color(0xFFF7F8FA), Colors.white],
+              colors: profileController.isDarkMode.value
+                  ? [Colors.black87, Colors.black12]
+                  : [const Color(0xFFF7F8FA), Colors.white],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -39,6 +42,7 @@ class CategoryIncomeView extends StatelessWidget {
 
   Widget _buildCategoryList(CategoryIncomeController controller) {
     // Mock data - replace with actual controller data
+    final profileController = Get.put(ProfileController());
 
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
@@ -53,6 +57,7 @@ class CategoryIncomeView extends StatelessWidget {
           color: controller.parseColorString(category.color ?? ""),
           index: index,
           controller: controller,
+          profileController: profileController,
         );
       },
     );
@@ -65,6 +70,7 @@ class CategoryIncomeView extends StatelessWidget {
     required Color color,
     required int index,
     required CategoryIncomeController controller,
+    required ProfileController profileController,
   }) {
     return TweenAnimationBuilder(
       duration: Duration(milliseconds: 300 + (index * 100)),
@@ -77,7 +83,9 @@ class CategoryIncomeView extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: profileController.isDarkMode.value
+              ? Colors.black87
+              : Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -97,12 +105,18 @@ class CategoryIncomeView extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [color.withValues(alpha: 0.2), color.withValues(alpha: 0.1)],
+                      colors: [
+                        color.withValues(alpha: 0.2),
+                        color.withValues(alpha: 0.1),
+                      ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
+                    border: Border.all(
+                      color: color.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
                   child: iconPath != null
                       ? Image.asset(
@@ -111,11 +125,7 @@ class CategoryIncomeView extends StatelessWidget {
                           height: 32,
                           fit: BoxFit.contain,
                         )
-                      : Icon(
-                          Icons.category,
-                          size: 32,
-                          color: color,
-                        ),
+                      : Icon(Icons.category, size: 32, color: color),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -124,10 +134,12 @@ class CategoryIncomeView extends StatelessWidget {
                     children: [
                       Text(
                         name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: profileController.isDarkMode.value
+                              ? Colors.white
+                              : Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 4),

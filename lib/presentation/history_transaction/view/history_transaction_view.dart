@@ -25,6 +25,7 @@ class HistoryTransactionView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(HistoryTransactionController());
     final double appBarHeight = AppBar().preferredSize.height;
+    final profileController = Get.put<ProfileController>(ProfileController());
 
     return Obx(() {
       if (controller.isLoading.value) {
@@ -40,7 +41,7 @@ class HistoryTransactionView extends StatelessWidget {
       return Scaffold(
         backgroundColor: primaryColor,
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             "Histori Transaksi",
             style: TextStyle(
               fontSize: 18.0,
@@ -53,7 +54,13 @@ class HistoryTransactionView extends StatelessWidget {
               onPressed: () {
                 Get.to(() => const ProfileView());
               },
-              icon: const Icon(Icons.settings, color: Colors.white, size: 32.0),
+              icon: Icon(
+                Icons.settings,
+                color: profileController.isDarkMode.value
+                    ? Colors.black87
+                    : Colors.white,
+                size: 32.0,
+              ),
             ),
           ],
           backgroundColor: primaryColor,
@@ -62,12 +69,14 @@ class HistoryTransactionView extends StatelessWidget {
         body: Container(
           padding: const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
           height: MediaQuery.of(context).size.height - appBarHeight,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(44.0),
               topRight: Radius.circular(44.0),
             ),
-            color: Colors.white,
+            color: profileController.isDarkMode.value
+                ? Colors.black87
+                : Colors.white,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,8 +153,10 @@ class HistoryTransactionView extends StatelessWidget {
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                decoration: BoxDecoration(
+                                  color: profileController.isDarkMode.value
+                                      ? Colors.black87
+                                      : Colors.white,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -198,8 +209,10 @@ class HistoryTransactionView extends StatelessWidget {
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
+                                decoration: BoxDecoration(
+                                  color: profileController.isDarkMode.value
+                                      ? Colors.black87
+                                      : Colors.white,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -264,7 +277,11 @@ class HistoryTransactionView extends StatelessWidget {
                     ), // Extra padding for FAB
                     itemBuilder: (context, index) {
                       final item = controller.filteredHistories[index];
-                      return _buildTransactionItem(item, controller);
+                      return _buildTransactionItem(
+                        item,
+                        controller,
+                        profileController,
+                      );
                     },
                   );
                 }),
@@ -274,9 +291,15 @@ class HistoryTransactionView extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           heroTag: "btn_filter_history",
-          onPressed: () => _showFilterModal(context, controller),
+          onPressed: () =>
+              _showFilterModal(context, controller, profileController),
           backgroundColor: primaryColor,
-          child: const Icon(Icons.filter_list, color: Colors.white),
+          child: Icon(
+            Icons.filter_list,
+            color: profileController.isDarkMode.value
+                ? Colors.black87
+                : Colors.white,
+          ),
         ),
       );
     });
@@ -286,6 +309,7 @@ class HistoryTransactionView extends StatelessWidget {
     String action,
     dynamic item,
     HistoryTransactionController controller,
+    ProfileController profileController,
   ) async {
     if (action == 'edit') {
       if (item.type == 'income') {
@@ -307,7 +331,9 @@ class HistoryTransactionView extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: profileController.isDarkMode.value
+                  ? Colors.black87
+                  : Colors.white,
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.circular(20),
               boxShadow: const [
@@ -392,6 +418,7 @@ class HistoryTransactionView extends StatelessWidget {
   Widget _buildTransactionItem(
     dynamic item,
     HistoryTransactionController controller,
+    ProfileController profileController,
   ) {
     Color color = Colors.black;
     IconData icon = Icons.help;
@@ -419,7 +446,9 @@ class HistoryTransactionView extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: profileController.isDarkMode.value
+              ? Colors.black87
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -428,7 +457,11 @@ class HistoryTransactionView extends StatelessWidget {
               offset: const Offset(0, 5),
             ),
           ],
-          border: Border.all(color: Colors.grey.shade100),
+          border: Border.all(
+            color: profileController.isDarkMode.value
+                ? Colors.black87
+                : Colors.grey.shade100,
+          ),
         ),
         child: Row(
           children: [
@@ -476,11 +509,19 @@ class HistoryTransactionView extends StatelessWidget {
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
               borderRadius: BorderRadius.circular(10),
-              style: const ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.white),
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(
+                  profileController.isDarkMode.value
+                      ? Colors.black87
+                      : Colors.white,
+                ),
               ),
-              onSelected: (String action) =>
-                  _handleMenuAction(action, item, controller),
+              onSelected: (String action) => _handleMenuAction(
+                action,
+                item,
+                controller,
+                profileController,
+              ),
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                 PopupMenuItem<String>(
                   value: 'edit',
@@ -513,6 +554,7 @@ class HistoryTransactionView extends StatelessWidget {
   void _showFilterModal(
     BuildContext context,
     HistoryTransactionController controller,
+    ProfileController profileController,
   ) {
     showModalBottomSheet(
       context: context,
@@ -526,8 +568,10 @@ class HistoryTransactionView extends StatelessWidget {
           maxChildSize: 0.9,
           builder: (context, scrollController) {
             return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              decoration: BoxDecoration(
+                color: profileController.isDarkMode.value
+                    ? Colors.black87
+                    : Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Column(
@@ -821,10 +865,12 @@ class HistoryTransactionView extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: const Text(
+                              child: Text(
                                 "Terapkan Filter",
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: profileController.isDarkMode.value
+                                      ? Colors.black87
+                                      : Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

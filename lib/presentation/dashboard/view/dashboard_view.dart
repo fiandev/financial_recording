@@ -1,9 +1,4 @@
-import 'package:financial_recording/presentation/dashboard/widget/button_transaction.dart';
 import 'package:financial_recording/presentation/history_transaction/view/transaction_detail_view.dart';
-import 'package:financial_recording/presentation/dashboard/widget/card_wallet.dart';
-import 'package:financial_recording/shared/widget/icon_primary/expense_icon.dart';
-import 'package:financial_recording/shared/widget/icon_primary/income_icon.dart';
-import 'package:financial_recording/shared/widget/icon_primary/transfer_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:financial_recording/core.dart';
@@ -12,13 +7,20 @@ import 'package:intl/intl.dart';
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
 
+  @override
   Widget build(BuildContext context) {
+    // Best practice: Definisikan controller di awal build atau gunakan GetView
     final controller = Get.put(DashboardController());
+    final profileController = Get.put(ProfileController());
+
     final double appBarHeight = AppBar().preferredSize.height;
+
     return Scaffold(
-      backgroundColor: primaryColor,
+      backgroundColor: profileController.isDarkMode.value
+          ? Colors.black87
+          : Colors.white,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Dashboard",
           style: TextStyle(
             fontSize: 18.0,
@@ -29,12 +31,20 @@ class DashboardView extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
+              // Navigasi aman ke ProfileView
               Get.to(() => const ProfileView());
             },
-            icon: const Icon(Icons.settings, color: Colors.white, size: 32.0),
+            icon: Icon(
+              Icons.settings,
+              color: profileController.isDarkMode.value
+                  ? Colors.black87
+                  : Colors.white,
+              size: 32.0,
+            ),
           ),
         ],
         backgroundColor: primaryColor,
+        elevation: 0,
       ),
       body: Container(
         padding: const EdgeInsets.only(left: 30.0, top: 30.0, right: 30.0),
@@ -44,20 +54,21 @@ class DashboardView extends StatelessWidget {
             topLeft: Radius.circular(44.0),
             topRight: Radius.circular(44.0),
           ),
-          color: Colors.white,
+          color: profileController.isDarkMode.value
+              ? Colors.black87
+              : Colors.white,
         ),
-        // padding: const EdgeInsets.only(left: 30.0, top: 30.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CardWallet(controller: controller),
             const SizedBox(height: 20),
-            ButtonTransaction(),
+            const ButtonTransaction(), // Pastikan const jika widget statis
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   "Transaksi",
                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
@@ -77,19 +88,23 @@ class DashboardView extends StatelessWidget {
               child: Obx(
                 () => ListView.builder(
                   itemCount: controller.transactions.length,
-                  physics: const ScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   itemBuilder: (BuildContext context, int index) {
                     final item = controller.transactions[index];
                     return ListTile(
                       onTap: () {
                         Get.to(() => TransactionDetailView(transaction: item));
                       },
+                      contentPadding: EdgeInsets.zero,
                       leading: item.type == "income"
                           ? const IncomeIcon()
                           : item.type == "expense"
                           ? const ExpenseIcon()
                           : const TransferIcon(),
-                      title: Text(item.categoryName),
+                      title: Text(
+                        item.categoryName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       subtitle: Text(
                         "Rp. ${NumberFormat.decimalPattern('id').format(item.amount)}",
                         style: TextStyle(
@@ -103,7 +118,10 @@ class DashboardView extends StatelessWidget {
                       ),
                       trailing: Text(
                         DateFormat("dd MMM yyyy").format(item.createdAt),
-                        style: const TextStyle(color: Colors.grey),
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ),
                       ),
                     );
                   },

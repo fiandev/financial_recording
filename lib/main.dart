@@ -5,6 +5,8 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'core.dart';
 
+bool _isDarkMode = false;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
@@ -20,6 +22,13 @@ void main() async {
     } catch (e) {
       debugPrint("Error parsing saved color: $e");
     }
+  }
+
+  // Load Dark Mode Preference
+  bool? savedDarkMode = DBService.get("dark_mode") == "true";
+
+  if (savedDarkMode) {
+    _isDarkMode = savedDarkMode;
   }
 
   Hive.registerAdapter(WalletModelAdapter());
@@ -119,7 +128,9 @@ class _MainAppState extends State<MainApp> {
       locale: Locale('id', 'ID'),
       fallbackLocale: Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
-      theme: getDefaultTheme(),
+      theme: getLightTheme(),
+      darkTheme: getDarkTheme(),
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: Splash(),
       onGenerateRoute: (routeSettings) {
         return null;

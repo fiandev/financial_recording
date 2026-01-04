@@ -8,6 +8,7 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get.put disini aman karena controller sudah pakai addPostFrameCallback
     final controller = Get.put(ProfileController());
     final double appBarHeight = AppBar().preferredSize.height;
 
@@ -37,13 +38,14 @@ class ProfileView extends StatelessWidget {
               topLeft: Radius.circular(30.0),
               topRight: Radius.circular(30.0),
             ),
-            color: Colors.white,
+            color: controller.isDarkMode.value ? Colors.black87 : Colors.white,
           ),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header Profile (Uncomment jika diperlukan dan data user sudah ada)
                 // _buildProfileHeader(controller),
                 const SizedBox(height: 30),
 
@@ -58,6 +60,7 @@ class ProfileView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _buildSettingCard(
+                  controller: controller,
                   icon: Icons.palette,
                   iconColor: Colors.purple,
                   title: "Warna Tema",
@@ -73,6 +76,8 @@ class ProfileView extends StatelessWidget {
                   ),
                   onTap: () => _showColorPicker(context, controller),
                 ),
+                const SizedBox(height: 12),
+                _buildDarkModeToggle(controller),
 
                 const SizedBox(height: 24),
 
@@ -87,6 +92,7 @@ class ProfileView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _buildSettingCard(
+                  controller: controller,
                   icon: Icons.cloud_upload,
                   iconColor: Colors.blue,
                   title: "Backup Data",
@@ -95,6 +101,7 @@ class ProfileView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 _buildSettingCard(
+                  controller: controller,
                   icon: Icons.cloud_download,
                   iconColor: Colors.green,
                   title: "Restore Data",
@@ -104,8 +111,6 @@ class ProfileView extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // Section Title: Dukungan
-                const SizedBox(height: 24),
                 // Section Title: Tentang
                 const Text(
                   "Tentang Program",
@@ -119,11 +124,13 @@ class ProfileView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: controller.isDarkMode.value
+                        ? Colors.black87
+                        : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: Colors.black.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -136,7 +143,7 @@ class ProfileView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withValues(alpha: 0.1),
+                              color: Colors.blue.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -169,7 +176,6 @@ class ProfileView extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -190,9 +196,11 @@ class ProfileView extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 35,
-          backgroundColor: primaryColor.withValues(alpha: 0.1),
+          backgroundColor: primaryColor.withOpacity(0.1),
           child: Text(
-            controller.userName.value[0],
+            controller.userName.value.isNotEmpty
+                ? controller.userName.value[0]
+                : "U",
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -219,6 +227,7 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildSettingCard({
+    required ProfileController controller,
     required IconData icon,
     required Color iconColor,
     required String title,
@@ -229,7 +238,7 @@ class ProfileView extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: controller.isDarkMode.value ? Colors.black87 : Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -251,7 +260,7 @@ class ProfileView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.1),
+                    color: iconColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: iconColor, size: 24),
@@ -302,7 +311,13 @@ class ProfileView extends StatelessWidget {
             child: HueRingPicker(
               pickerColor: selectedColor,
               onColorChanged: (color) {
-                selectedColor = color;
+                HSVColor hsv = HSVColor.fromColor(color);
+
+                if (hsv.saturation < 0.7) {
+                  hsv = hsv.withSaturation(0.7);
+                }
+
+                selectedColor = hsv.toColor();
               },
               enableAlpha: false,
               displayThumbColor: true,
@@ -323,14 +338,99 @@ class ProfileView extends StatelessWidget {
     );
   }
 
+  Widget _buildDarkModeToggle(ProfileController controller) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 0),
+      decoration: BoxDecoration(
+        color: controller.isDarkMode.value ? Colors.black87 : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: controller.isDarkMode.value ? Colors.black87 : Colors.white,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            controller.toggleDarkMode();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: controller.isDarkMode.value
+                        ? Colors.black12
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.dark_mode,
+                    color: Colors.orange,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Mode Gelap",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        controller.isDarkMode.value ? "Aktif" : "Nonaktif",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: controller.isDarkMode.value
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Obx(
+                  () => Switch(
+                    value: controller.isDarkMode.value,
+                    onChanged: (value) {
+                      controller.toggleDarkMode();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildLogoutButton(ProfileController controller) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.shade50,
-          foregroundColor: Colors.red,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          backgroundColor: controller.isDarkMode.value
+              ? Colors.black87
+              : Colors.red.shade50,
+          foregroundColor: controller.isDarkMode.value
+              ? Colors.redAccent
+              : Colors.red,
+          padding: const EdgeInsets.symmetric(vertical: 24),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),

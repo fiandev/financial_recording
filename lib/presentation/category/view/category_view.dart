@@ -9,6 +9,7 @@ class CategoryView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(CategoryController());
     final double appBarHeight = AppBar().preferredSize.height;
+    final profileController = Get.put(ProfileController());
 
     return Obx(() {
       if (controller.isLoading.value) {
@@ -37,7 +38,13 @@ class CategoryView extends StatelessWidget {
               onPressed: () {
                 Get.to(() => const ProfileView());
               },
-              icon: const Icon(Icons.settings, color: Colors.white, size: 32.0),
+              icon: Icon(
+                Icons.settings,
+                color: profileController.isDarkMode.value
+                    ? Colors.black87
+                    : Colors.white,
+                size: 32.0,
+              ),
             ),
           ],
           backgroundColor: primaryColor,
@@ -49,7 +56,9 @@ class CategoryView extends StatelessWidget {
               topLeft: Radius.circular(44.0),
               topRight: Radius.circular(44.0),
             ),
-            color: Colors.white,
+            color: profileController.isDarkMode.value
+                ? Colors.black87
+                : Colors.white,
           ),
 
           // padding: const EdgeInsets.only(left: 30.0, top: 30.0),
@@ -77,9 +86,24 @@ class CategoryView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           labelColor: Colors.white,
-                          unselectedLabelColor: Colors.black87,
+                          unselectedLabelColor:
+                              profileController.isDarkMode.value
+                              ? Colors.black87
+                              : Colors.grey,
                           indicatorSize: TabBarIndicatorSize.tab,
-                          dividerColor: Colors.transparent,
+                          dividerColor: profileController.isDarkMode.value
+                              ? Colors.white
+                              : Colors.black87,
+                          labelStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          unselectedLabelStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                           tabs: const [
                             Tab(text: "Pemasukan"),
                             Tab(text: "Pengeluaran"),

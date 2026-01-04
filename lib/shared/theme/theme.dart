@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core.dart';
 
-ThemeData getDefaultTheme() {
+ThemeData getLightTheme() {
   return ThemeData().copyWith(
     primaryColor: primaryColor,
     scaffoldBackgroundColor: scaffoldBackgroundColor,
-    colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
+    colorScheme: ColorScheme.fromSeed(seedColor: primaryColor, brightness: Brightness.light),
     appBarTheme: AppBarTheme(
       toolbarHeight: 80,
       centerTitle: false,
@@ -16,7 +16,7 @@ ThemeData getDefaultTheme() {
         color: const Color.fromARGB(255, 255, 255, 255),
         fontWeight: FontWeight.bold,
       ),
-      backgroundColor: scaffoldBackgroundColor,
+      backgroundColor: primaryColor,
       iconTheme: const IconThemeData(color: Color.fromARGB(255, 255, 255, 255)),
       actionsIconTheme: const IconThemeData(color: Colors.black),
     ),
@@ -115,4 +115,107 @@ ThemeData getDefaultTheme() {
       dataRowMinHeight: 48,
     ),
   );
+}
+
+ThemeData getDarkTheme() {
+  return ThemeData().copyWith(
+    primaryColor: primaryColor,
+    scaffoldBackgroundColor: Colors.grey[900],
+    colorScheme: ColorScheme.fromSeed(seedColor: primaryColor, brightness: Brightness.dark),
+    appBarTheme: AppBarTheme(
+      toolbarHeight: 80,
+      centerTitle: false,
+      elevation: 0.0,
+      titleTextStyle: GoogleFonts.roboto(
+        fontSize: 14,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
+      backgroundColor: Colors.grey[850],
+      iconTheme: const IconThemeData(color: Colors.white),
+      actionsIconTheme: const IconThemeData(color: Colors.white),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: Colors.grey[850],
+      unselectedItemColor: Colors.grey[400],
+      selectedItemColor: Colors.white,
+      selectedLabelStyle: TextStyle(fontSize: 10),
+      unselectedLabelStyle: TextStyle(fontSize: 10),
+    ),
+    tabBarTheme: TabBarThemeData(
+      unselectedLabelColor: Colors.grey[400],
+      labelColor: Colors.white,
+    ),
+    iconTheme: IconThemeData(color: primaryColor),
+    textTheme: TextTheme(
+      titleSmall: GoogleFonts.roboto(color: Colors.white),
+      titleMedium: GoogleFonts.roboto(color: Colors.white),
+      titleLarge: GoogleFonts.roboto(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
+      bodyLarge: GoogleFonts.roboto(color: Colors.white),
+      bodySmall: GoogleFonts.roboto(color: Colors.white),
+      bodyMedium: GoogleFonts.roboto(color: Colors.white),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      contentPadding: EdgeInsets.symmetric(vertical: 0),
+      hintStyle: TextStyle(
+        color: Colors.grey[500],
+        fontSize: 12,
+        fontWeight: FontWeight.normal,
+        letterSpacing: 0,
+      ),
+      hoverColor: Colors.transparent,
+      errorMaxLines: 1,
+      filled: true,
+      fillColor: Colors.grey[800],
+    ),
+    cardTheme: CardThemeData(
+      elevation: 0.6,
+      color: Colors.grey[850],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(width: 0.4, color: Colors.grey[700]!),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+        backgroundColor: Colors.grey[700],
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+        side: BorderSide(color: primaryColor),
+      ),
+    ),
+    dataTableTheme: DataTableThemeData(
+      dataTextStyle: TextStyle(color: Colors.white),
+      headingRowColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.grey[700]!;
+        }
+        return Colors.grey[800]!;
+      }),
+      headingTextStyle: TextStyle(color: Colors.white),
+      dataRowColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.grey[700]!;
+        }
+        return Colors.grey[850]!;
+      }),
+      dataRowMinHeight: 48,
+    ),
+  );
+}
+
+ThemeData getDefaultTheme() {
+  // For backward compatibility, return light theme by default
+  return getLightTheme();
 }
