@@ -3,11 +3,12 @@ import 'package:get/get.dart';
 import 'package:financial_recording/core.dart';
 
 class FormIncomeView extends StatelessWidget {
-  const FormIncomeView({super.key});
+  const FormIncomeView({super.key, this.transaction});
+  final TransactionModel? transaction;
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(FormIncomeController());
+    final controller = Get.put(FormIncomeController(transaction: transaction));
 
     return Obx(() {
       return Scaffold(
@@ -16,9 +17,9 @@ class FormIncomeView extends StatelessWidget {
           elevation: 0,
           backgroundColor: Colors.white,
           centerTitle: true,
-          title: const Text(
-            "Tambah Pemasukan",
-            style: TextStyle(
+          title: Text(
+            transaction != null ? "Edit Pemasukan" : "Tambah Pemasukan",
+            style: const TextStyle(
               color: Colors.black87,
               fontWeight: FontWeight.bold,
               fontSize: 18,
@@ -202,7 +203,9 @@ class FormIncomeView extends StatelessWidget {
                                     Container(
                                       padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
-                                        color: primaryColor.withValues(alpha: 0.1),
+                                        color: primaryColor.withValues(
+                                          alpha: 0.1,
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(
@@ -230,7 +233,9 @@ class FormIncomeView extends StatelessWidget {
                                     child: Container(
                                       padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
-                                        color: Colors.red.withValues(alpha: 0.1),
+                                        color: Colors.red.withValues(
+                                          alpha: 0.1,
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -317,9 +322,11 @@ class FormIncomeView extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    "Simpan Pemasukan",
-                    style: TextStyle(
+                  child: Text(
+                    transaction != null
+                        ? "Perbarui Pemasukan"
+                        : "Simpan Pemasukan",
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

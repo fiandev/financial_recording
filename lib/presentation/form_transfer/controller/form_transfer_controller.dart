@@ -23,11 +23,70 @@ class FormTransferController extends GetxController {
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   RxList<Map<String, String>> incomeList = <Map<String, String>>[].obs;
 
+  TransactionModel? transaction;
+  int? transactionKey;
+
+  FormTransferController({this.transaction});
+
   @override
   void onInit() {
     super.onInit();
     addItem();
     initializeData();
+    if (transaction != null) {
+      populateForEdit();
+    }
+  }
+
+  void populateForEdit() {
+    if (transaction == null) return;
+
+    // Parse wallet names: "Source -> Dest"
+    var parts = transaction!.walletName.split(' -> ');
+    if (parts.length == 2) {
+      var sourceName = parts[0];
+      var destName = parts[1];
+
+      // Find source wallet key
+      for (var i = 0; i < box.length; i++) {
+        final key = box.keyAt(i);
+        final WalletModel wallet = box.get(key)!;
+        if (wallet.name == sourceName) {
+          selectedSourceWalletKey.value = key.toString();
+          break;
+        }
+      }
+
+      // Find dest wallet key
+      for (var i = 0; i < box.length; i++) {
+        final key = box.keyAt(i);
+        final WalletModel wallet = box.get(key)!;
+        if (wallet.name == destName) {
+          selectedDestWalletKey.value = key.toString();
+          break;
+        }
+      }
+    }
+
+    // Populate items
+    incomeList.clear();
+    for (var item in transaction!.items) {
+      incomeList.add({
+        "name": item["name"],
+        "nominal": item["nominal"].toString(),
+      });
+    }
+
+    // Find transaction key
+    var boxTransactions = Hive.box<TransactionModel>('transactions');
+    for (var i = 0; i < boxTransactions.length; i++) {
+      final key = boxTransactions.keyAt(i);
+      final TransactionModel t = boxTransactions.get(key)!;
+      if (t == transaction) {
+        transactionKey = key;
+        break;
+      }
+    }
   }
 
   Future<void> initializeData() async {
@@ -143,32 +202,70 @@ class FormTransferController extends GetxController {
         return;
       }
 
-      // 1. Update Source Wallet (Decrease Balance)
-      sourceWallet.balance -= totalIncome;
-      await box.put(sourceKey, sourceWallet);
-
-      // 2. Update Destination Wallet (Increase Balance)
-      destWallet.balance += totalIncome;
-      await box.put(destKey, destWallet);
-
-      // 3. Create Transaction Record
       final items = incomeList.map((e) {
         final nominalStr = e["nominal"] ?? "0";
         final cleanedStr = nominalStr.replaceAll(".", "");
         return {"name": e["name"], "nominal": int.tryParse(cleanedStr) ?? 0};
       }).toList();
 
-      final transaction = TransactionModel(
-        walletName: "${sourceWallet.name} -> ${destWallet.name}",
-        categoryName: "Transfer",
-        amount: totalIncome,
-        items: items,
-        createdAt: DateTime.now(),
-        type: 'transfer',
-      );
+      var transactionBox = Hive.box<TransactionModel>('transactions');
 
-      final transactionBox = Hive.box<TransactionModel>('transactions');
-      await transactionBox.add(transaction);
+      if (transaction != null && transactionKey != null) {
+        // Editing: reverse old transfer
+        var oldParts = transaction!.walletName.split(' -> ');
+        if (oldParts.length == 2) {
+          var oldSourceName = oldParts[0];
+          var oldDestName = oldParts[1];
+          var oldAmount = transaction!.amount;
+          for (var w in box.values) {
+            if (w.name == oldSourceName) {
+              w.balance += oldAmount; // reverse: add back to source
+              await box.put(box.keyAt(box.values.toList().indexOf(w)), w);
+            } else if (w.name == oldDestName) {
+              w.balance -= oldAmount; // reverse: subtract from dest
+              await box.put(box.keyAt(box.values.toList().indexOf(w)), w);
+            }
+          }
+        }
+
+        // Update transaction
+        final updatedTransaction = TransactionModel(
+          walletName: "${sourceWallet.name} -> ${destWallet.name}",
+          categoryName: "Transfer",
+          amount: totalIncome,
+          items: items,
+          createdAt: transaction!.createdAt,
+          type: 'transfer',
+        );
+        await transactionBox.put(transactionKey!, updatedTransaction);
+
+        // Apply new balances
+        sourceWallet.balance -= totalIncome;
+        await box.put(sourceKey, sourceWallet);
+        destWallet.balance += totalIncome;
+        await box.put(destKey, destWallet);
+      } else {
+        // New transfer
+        // 1. Update Source Wallet (Decrease Balance)
+        sourceWallet.balance -= totalIncome;
+        await box.put(sourceKey, sourceWallet);
+
+        // 2. Update Destination Wallet (Increase Balance)
+        destWallet.balance += totalIncome;
+        await box.put(destKey, destWallet);
+
+        // 3. Create Transaction Record
+        final newTransaction = TransactionModel(
+          walletName: "${sourceWallet.name} -> ${destWallet.name}",
+          categoryName: "Transfer",
+          amount: totalIncome,
+          items: items,
+          createdAt: DateTime.now(),
+          type: 'transfer',
+        );
+
+        await transactionBox.add(newTransaction);
+      }
 
       // 4. Refresh Controllers
       if (Get.isRegistered<WalletController>()) {
@@ -181,7 +278,9 @@ class FormTransferController extends GetxController {
       Get.back();
       Get.snackbar(
         "Sukses",
-        "Transfer berhasil",
+        transaction != null
+            ? "Transfer berhasil diperbarui"
+            : "Transfer berhasil",
         mainButton: TextButton(
           onPressed: () => Get.back(),
           child: const Icon(Icons.close, color: Colors.white),

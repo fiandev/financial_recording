@@ -1,7 +1,7 @@
 import 'package:financial_recording/presentation/history_transaction/view/transaction_detail_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core.dart'; // Pastikan path ini sesuai
+import '../../../core.dart';
 import 'package:intl/intl.dart';
 
 class HistoryTransactionView extends StatelessWidget {
@@ -23,7 +23,6 @@ class HistoryTransactionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Pastikan Controller sudah di-handle oleh GetX Binding atau init di sini
     final controller = Get.put(HistoryTransactionController());
     final double appBarHeight = AppBar().preferredSize.height;
 
@@ -283,6 +282,113 @@ class HistoryTransactionView extends StatelessWidget {
     });
   }
 
+  void _handleMenuAction(
+    String action,
+    dynamic item,
+    HistoryTransactionController controller,
+  ) async {
+    if (action == 'edit') {
+      if (item.type == 'income') {
+        Get.to(() => FormIncomeView(transaction: item));
+      } else if (item.type == 'expense') {
+        Get.to(() => FormExpenseView(transaction: item));
+      } else if (item.type == 'transfer') {
+        Get.to(() => FormTransferView(transaction: item));
+      }
+    } else if (action == 'delete') {
+      // Show confirmation dialog
+      bool? confirm = await Get.dialog<bool>(
+        Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20), // Sudut membulat
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10.0,
+                  offset: Offset(0.0, 10.0),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon Peringatan Besar
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.delete_forever_rounded,
+                    size: 40,
+                    color: Colors.red,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Konfirmasi Hapus",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Apakah Anda yakin ingin menghapus data transaksi ini?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    // Tombol Batal
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Get.back(result: false),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text("Batal"),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // Tombol Hapus (Solid Color)
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => Get.back(result: true),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text("Hapus"),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      if (confirm == true) {
+        controller.deleteTransaction(item);
+      }
+    }
+  }
+
   Widget _buildTransactionItem(
     dynamic item,
     HistoryTransactionController controller,
@@ -366,6 +472,37 @@ class HistoryTransactionView extends StatelessWidget {
                 color: color,
                 fontSize: 15,
               ),
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              borderRadius: BorderRadius.circular(10),
+              style: const ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.white),
+              ),
+              onSelected: (String action) =>
+                  _handleMenuAction(action, item, controller),
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, color: Colors.blue.shade400),
+                      const SizedBox(width: 8),
+                      const Text('Edit'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, color: Colors.red.shade400),
+                      const SizedBox(width: 8),
+                      const Text('Hapus'),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

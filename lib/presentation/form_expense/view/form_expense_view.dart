@@ -3,34 +3,43 @@ import 'package:get/get.dart';
 import 'package:financial_recording/core.dart';
 
 class FormExpenseView extends StatelessWidget {
-  const FormExpenseView({super.key});
+  const FormExpenseView({super.key, this.transaction});
+  final TransactionModel? transaction;
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(FormExpenseController());
+    // Inject Controller
+    final controller = Get.put(FormExpenseController(transaction: transaction));
 
-    return Obx(() {
-      return Scaffold(
-        backgroundColor: Colors.grey[50],
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          title: const Text(
-            "Tambah Pengeluaran",
-            style: TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        title: Text(
+          transaction != null ? "Edit Pengeluaran" : "Tambah Pengeluaran",
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
-          iconTheme: const IconThemeData(color: Colors.black87),
         ),
-        body: Form(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Get.back(),
+        ),
+      ),
+      body: Obx(() {
+        if (controller.wallets.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return Form(
           key: controller.formKey,
           child: Column(
             children: [
-              // Top Section: Wallet & Category
+              // --- Bagian Atas: Wallet & Kategori ---
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20.0),
@@ -42,38 +51,45 @@ class FormExpenseView extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
                   ],
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Dropdown Wallet
                     QDropdownField(
                       label: "Wallet",
                       validator: Validator.required,
                       items: controller.wallets,
+                      // Pastikan value ter-bind ke controller
                       value: controller.selectedWalletKey.value.isEmpty
                           ? null
                           : controller.selectedWalletKey.value,
                       onChanged: (value, label) {
                         controller.selectedWalletKey.value = value ?? "";
                         if (label != null) {
+                          // Update logic saldo saat user ganti wallet manual
                           String totalBalance = label
                               .split("Rp. ")[1]
-                              .replaceAll(".", "");
+                              .replaceAll(".", "")
+                              .replaceAll(",", "");
+
+                          // Set saldo baru ke controller
                           controller.walletBalance.value = int.parse(
                             totalBalance,
                           );
-                          controller.isEnable.value =
-                              controller.totalIncome <=
-                              controller.walletBalance.value;
+
+                          // Cek ulang tombol simpan
+                          controller.checkEnableStatus();
                         }
                       },
                     ),
+
+                    // Dropdown Category
                     QDropdownField(
                       label: "Kategori Pengeluaran",
                       validator: Validator.required,
@@ -85,13 +101,15 @@ class FormExpenseView extends StatelessWidget {
                         controller.selectedCategoryKey.value = value ?? "";
                       },
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 12),
+
+                    // Info Total Pengeluaran
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: dangerColor.withValues(alpha: 0.1),
+                        color: dangerColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: dangerColor.withValues(alpha: 0.3)),
+                        border: Border.all(color: dangerColor.withOpacity(0.3)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -131,14 +149,14 @@ class FormExpenseView extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // List Header
+              // --- Header List Item ---
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      "Daftar Pengeluaran",
+                      "Daftar Item",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -157,7 +175,7 @@ class FormExpenseView extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              // Income List
+              // --- List Item Dynamic ---
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(
@@ -166,16 +184,19 @@ class FormExpenseView extends StatelessWidget {
                   ),
                   itemCount: controller.incomeList.length,
                   itemBuilder: (context, i) {
-                    Map<String, String> currentItem = controller.incomeList[i];
+                    // Ambil referensi map item
+                    var currentItem = controller.incomeList[i];
+
                     return Container(
-                      key: ObjectKey(currentItem),
+                      // Gunakan Key agar flutter tidak bingung saat render ulang list
+                      key: ValueKey("item_$i"),
                       margin: const EdgeInsets.only(bottom: 16.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
+                            color: Colors.black.withOpacity(0.03),
                             blurRadius: 15,
                             offset: const Offset(0, 5),
                           ),
@@ -185,7 +206,7 @@ class FormExpenseView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Item Header
+                          // Header Per Item (Nomor & Hapus)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
@@ -209,11 +230,11 @@ class FormExpenseView extends StatelessWidget {
                                     Container(
                                       padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
-                                        color: dangerColor.withValues(alpha: 0.1),
+                                        color: dangerColor.withOpacity(0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(
-                                        Icons.monetization_on_outlined,
+                                        Icons.shopping_bag_outlined,
                                         size: 16,
                                         color: dangerColor,
                                       ),
@@ -229,6 +250,7 @@ class FormExpenseView extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+                                // Tombol Hapus (Hanya muncul jika item > 1)
                                 if (controller.incomeList.length > 1)
                                   InkWell(
                                     onTap: () =>
@@ -237,7 +259,7 @@ class FormExpenseView extends StatelessWidget {
                                     child: Container(
                                       padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
-                                        color: Colors.red.withValues(alpha: 0.1),
+                                        color: Colors.red.withOpacity(0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -251,35 +273,40 @@ class FormExpenseView extends StatelessWidget {
                             ),
                           ),
 
-                          // Item Form
+                          // Form Input Item
                           Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
                               children: [
                                 QTextField(
-                                  label: "Keterangan",
-                                  hint: "Contoh: Listrik, Nasi Padang dll",
+                                  label: "Nama Item",
+                                  hint: "Contoh: Nasi Padang, Token Listrik",
                                   validator: Validator.required,
+                                  // PENTING: Bind value dari list controller
                                   value: currentItem["name"],
                                   onChanged: (value) {
                                     currentItem["name"] = value;
-                                    controller.incomeList.refresh();
+                                    // Tidak perlu refresh list UI, cukup update data
                                   },
                                 ),
+                                const SizedBox(height: 12),
                                 QTextField(
                                   label: "Nominal (Rp)",
                                   hint: "0",
                                   isNumberOnly: true,
                                   validator: Validator.required,
+                                  prefixIcon: Icons.attach_money,
+                                  // PENTING: Bind value dari list controller
                                   value: currentItem["nominal"],
                                   onChanged: (value) {
                                     currentItem["nominal"] = value;
-                                    controller.isEnable.value =
-                                        controller.totalIncome <=
-                                        controller.walletBalance.value;
+
+                                    // PENTING: Panggil validasi tombol simpan
+                                    controller.checkEnableStatus();
+
+                                    // Refresh agar total income di atas update real-time
                                     controller.incomeList.refresh();
                                   },
-                                  prefixIcon: Icons.attach_money,
                                 ),
                               ],
                             ),
@@ -291,64 +318,44 @@ class FormExpenseView extends StatelessWidget {
                 ),
               ),
 
-              // Bottom Action Button
+              // --- Tombol Simpan ---
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 10,
                       offset: const Offset(0, -5),
                     ),
                   ],
                 ),
                 child: QButton(
-                  label: "Simpan Pengeluaran",
+                  label: transaction != null
+                      ? "Perbarui Pengeluaran"
+                      : "Simpan Pengeluaran",
                   color: dangerColor,
-
+                  // Menggunakan status dari controller
                   enabled: controller.isEnable.value,
                   onPressed: () {
                     if (!controller.formKey.currentState!.validate()) {
                       Get.snackbar(
-                        "Error",
-                        "Formulir tidak valid",
-                        mainButton: TextButton(
-                          onPressed: () => Get.back(),
-                          child: const Icon(Icons.close, color: Colors.white),
-                        ),
+                        "Perhatian",
+                        "Mohon lengkapi semua data",
+                        backgroundColor: Colors.orange,
+                        colorText: Colors.white,
                       );
                       return;
                     }
                     controller.saveExpense();
                   },
                 ),
-                // ElevatedButton(
-                //   onPressed: () {},
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: dangerColor,
-
-                //     minimumSize: const Size(double.infinity, 50),
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(12),
-                //     ),
-                //     elevation: 0,
-                //   ),
-                //   child: const Text(
-                //     "Simpan Pengeluaran",
-                //     style: TextStyle(
-                //       fontSize: 16,
-                //       fontWeight: FontWeight.bold,
-                //       color: Colors.white,
-                //     ),
-                //   ),
-                // ),
               ),
             ],
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 }

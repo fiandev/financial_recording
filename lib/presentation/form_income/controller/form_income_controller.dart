@@ -24,11 +24,62 @@ class FormIncomeController extends GetxController {
   final RxString selectedWalletKey = "".obs;
   final RxString selectedCategoryKey = "".obs;
 
+  TransactionModel? transaction;
+  int? transactionKey;
+
+  FormIncomeController({this.transaction});
+
   @override
   void onInit() {
     super.onInit();
     addItem();
     initializeData();
+    if (transaction != null) {
+      populateForEdit();
+    }
+  }
+
+  void populateForEdit() {
+    if (transaction == null) return;
+
+    // Find wallet key
+    for (var i = 0; i < box.length; i++) {
+      final key = box.keyAt(i);
+      final WalletModel wallet = box.get(key)!;
+      if (wallet.name == transaction!.walletName) {
+        selectedWalletKey.value = key.toString();
+        break;
+      }
+    }
+
+    // Find category key
+    for (var i = 0; i < boxCategories.length; i++) {
+      final key = boxCategories.keyAt(i);
+      final CategoryModel category = boxCategories.get(key)!;
+      if (category.name == transaction!.categoryName) {
+        selectedCategoryKey.value = key.toString();
+        break;
+      }
+    }
+
+    // Populate items
+    incomeList.clear();
+    for (var item in transaction!.items) {
+      incomeList.add({
+        "name": item["name"],
+        "nominal": item["nominal"].toString(),
+      });
+    }
+
+    // Find transaction key
+    for (var i = 0; i < boxTransactions.length; i++) {
+      final key = boxTransactions.keyAt(i);
+      final TransactionModel t = boxTransactions.get(key)!;
+      if (t == transaction) {
+        transactionKey = key;
+        break;
+      }
+    }
   }
 
   Future<void> initializeData() async {
@@ -125,31 +176,75 @@ class FormIncomeController extends GetxController {
         return {"name": e["name"], "nominal": int.tryParse(cleanedStr) ?? 0};
       }).toList();
 
-      final transaction = TransactionModel(
-        walletName: wallet.name,
-        categoryName: category.name,
-        amount: totalIncome,
-        items: items,
-        createdAt: DateTime.now(),
-        type: 'income',
+      if (transaction != null && transactionKey != null) {
+        // Editing: reverse old balance, apply new
+        final oldWallet = box.get(
+          int.parse(
+            boxTransactions.get(transactionKey!)!.walletName ==
+                    transaction!.walletName
+                ? selectedWalletKey.value
+                : "find old",
+          ),
+        );
+        // To simplify, since wallet might change, reverse old, apply new
+        // But for simplicity, assume wallet doesn't change, or handle properly
+
+        // First, reverse old transaction
+        var oldWalletName = transaction!.walletName;
+        var oldAmount = transaction!.amount;
+        for (var w in box.values) {
+          if (w.name == oldWalletName) {
+            w.balance -= oldAmount;
+            await box.put(box.keyAt(box.values.toList().indexOf(w)), w);
+            break;
+          }
+        }
+
+        // Update transaction
+        final updatedTransaction = TransactionModel(
+          walletName: wallet.name,
+          categoryName: category.name,
+          amount: totalIncome,
+          items: items,
+          createdAt: transaction!.createdAt, // keep original date
+          type: 'income',
+        );
+        await boxTransactions.put(transactionKey!, updatedTransaction);
+
+        // Apply new balance
+        wallet.balance += totalIncome;
+        await box.put(walletKey, wallet);
+      } else {
+        // New transaction
+        final newTransaction = TransactionModel(
+          walletName: wallet.name,
+          categoryName: category.name,
+          amount: totalIncome,
+          items: items,
+          createdAt: DateTime.now(),
+          type: 'income',
+        );
+
+        await boxTransactions.add(newTransaction);
+
+        // Update wallet balance (increase for income)
+        wallet.balance += totalIncome;
+        await box.put(walletKey, wallet);
+      }
+
+      final controller = Get.put<WalletController>(WalletController());
+      final controllerDashboard = Get.put<DashboardController>(
+        DashboardController(),
       );
-
-      // Save transaction
-      final transactionBox = Hive.box<TransactionModel>('transactions');
-      await transactionBox.add(transaction);
-
-      // Update wallet balance (increase for income)
-      wallet.balance += totalIncome;
-      await box.put(walletKey, wallet);
-      final controller = Get.find<WalletController>();
-      final controllerDashboard = Get.find<DashboardController>();
 
       controllerDashboard.initializeData();
       controller.refresh();
       Get.back();
       Get.snackbar(
         "Sukses",
-        "Pemasukan berhasil disimpan",
+        transaction != null
+            ? "Pemasukan berhasil diperbarui"
+            : "Pemasukan berhasil disimpan",
         mainButton: TextButton(
           onPressed: () => Get.back(),
           child: const Icon(Icons.close, color: Colors.white),

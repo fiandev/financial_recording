@@ -340,18 +340,93 @@ class DebtView extends StatelessWidget {
                 Get.to(() => FormDebtView(editingDebt: item, index: index));
               } else if (action == 'delete') {
                 // Show confirmation dialog
-                bool? confirm = await Get.defaultDialog(
-                  title: "Konfirmasi",
-                  middleText:
-                      "Apakah Anda yakin ingin menghapus data hutang ini?",
-                  textConfirm: "Hapus",
-                  textCancel: "Batal",
-                  confirmTextColor: Colors.white,
-                  cancelTextColor: Colors.grey,
-                  backgroundColor: Colors.white,
-                  buttonColor: Colors.red,
-                  onCancel: () => Get.back(),
-                  onConfirm: () => Get.back(result: true),
+                bool? confirm = await Get.dialog<bool>(
+                  Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20), // Sudut membulat
+                    ),
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 10.0,
+                            offset: Offset(0.0, 10.0),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Icon Peringatan Besar
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.delete_forever_rounded,
+                              size: 40,
+                              color: Colors.red,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            "Konfirmasi Hapus",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Apakah Anda yakin ingin menghapus data transaksi ini?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              // Tombol Batal
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => Get.back(result: false),
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text("Batal"),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              // Tombol Hapus (Solid Color)
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () => Get.back(result: true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text("Hapus"),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 );
 
                 if (confirm == true) {

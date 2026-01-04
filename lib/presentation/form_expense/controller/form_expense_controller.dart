@@ -1,11 +1,7 @@
 import 'package:financial_recording/core.dart';
-import 'package:financial_recording/models/category_model/category_model.dart';
-import 'package:financial_recording/models/transaction_model/transaction_model.dart';
-import 'package:financial_recording/presentation/wallet/controller/wallet_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:financial_recording/models/wallet_model/wallet_model.dart';
 import 'package:intl/intl.dart';
 
 class FormExpenseController extends GetxController {
@@ -13,27 +9,86 @@ class FormExpenseController extends GetxController {
   final RxBool hasError = false.obs;
   final RxBool isEnable = true.obs;
   final RxString errorMessage = "".obs;
-  final RxInt counter = 1.obs;
+  // Hapus counter jika tidak dipakai
+
   var box = Hive.box<WalletModel>('walletBox');
   var boxCategories = Hive.box<CategoryModel>('categories');
   var boxTransactions = Hive.box<TransactionModel>('transactions');
+
   RxList<Map<String, String>> incomeList = <Map<String, String>>[].obs;
   final RxList<Map<String, dynamic>> wallets = <Map<String, dynamic>>[].obs;
   final RxList<Map<String, String>> categories = <Map<String, String>>[].obs;
+
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final RxInt walletBalance = 0.obs;
+  final RxInt walletBalance = 0.obs; // Saldo untuk validasi
   final RxString selectedWalletKey = "".obs;
   final RxString selectedCategoryKey = "".obs;
+
+  TransactionModel? transaction;
+  int? transactionKey;
+
+  FormExpenseController({this.transaction});
 
   @override
   void onInit() {
     super.onInit();
-    addItem();
-    initializeData();
+    initializeData().then((_) {
+      if (transaction != null) {
+        populateForEdit();
+      } else {
+        addItem();
+      }
+    });
+  }
+
+  void populateForEdit() {
+    if (transaction == null) return;
+
+    // A. Cari Key Wallet
+    for (var i = 0; i < box.length; i++) {
+      final key = box.keyAt(i);
+      final WalletModel wallet = box.get(key)!;
+      if (wallet.name == transaction!.walletName) {
+        selectedWalletKey.value = key.toString();
+
+        walletBalance.value = wallet.balance + transaction!.amount;
+        break;
+      }
+    }
+
+    // B. Cari Key Category
+    for (var i = 0; i < boxCategories.length; i++) {
+      final key = boxCategories.keyAt(i);
+      final CategoryModel category = boxCategories.get(key)!;
+      if (category.name == transaction!.categoryName) {
+        selectedCategoryKey.value = key.toString();
+        break;
+      }
+    }
+
+    // C. Populate Items
+    incomeList.clear();
+    for (var item in transaction!.items) {
+      incomeList.add({
+        "name": item["name"],
+        "nominal": item["nominal"].toString(),
+      });
+    }
+
+    // D. Cari Key Transaksi untuk update nanti
+    for (var i = 0; i < boxTransactions.length; i++) {
+      final key = boxTransactions.keyAt(i);
+      final TransactionModel t = boxTransactions.get(key)!;
+      if (t == transaction) {
+        transactionKey = key;
+        break;
+      }
+    }
+
+    checkEnableStatus();
   }
 
   Future<void> initializeData() async {
-    // Clear existing data to avoid duplicates if called multiple times
     wallets.clear();
     categories.clear();
 
@@ -70,57 +125,48 @@ class FormExpenseController extends GetxController {
 
   void addItem() {
     incomeList.add({"name": "", "nominal": ""});
+    checkEnableStatus();
   }
 
   void removeItem(Map<String, String> item) {
     incomeList.remove(item);
+    checkEnableStatus();
   }
 
-  // Calculate total income by summing all nominal values
   int get totalIncome {
     return incomeList.fold<int>(0, (sum, item) {
       final nominalStr = item["nominal"] ?? "";
-      // Remove thousand separators (dots) and parse
       final cleanedStr = nominalStr.replaceAll(".", "");
       final nominal = int.tryParse(cleanedStr) ?? 0;
       return sum + nominal;
     });
   }
 
+  void checkEnableStatus() {
+    if (walletBalance.value > 0 && totalIncome > 0) {
+      isEnable.value = totalIncome <= walletBalance.value;
+    } else {
+      isEnable.value = false;
+    }
+  }
+
   Future<void> saveExpense() async {
     if (selectedWalletKey.value.isEmpty) {
-      Get.snackbar(
-        "Error",
-        "Pilih Wallet terlebih dahulu",
-        mainButton: TextButton(
-          onPressed: () => Get.back(),
-          child: const Icon(Icons.close, color: Colors.white),
-        ),
-      );
+      Get.snackbar("Error", "Pilih Wallet terlebih dahulu");
       return;
     }
     if (selectedCategoryKey.value.isEmpty) {
-      Get.snackbar(
-        "Error",
-        "Pilih Kategori terlebih dahulu",
-        mainButton: TextButton(
-          onPressed: () => Get.back(),
-          child: const Icon(Icons.close, color: Colors.white),
-        ),
-      );
+      Get.snackbar("Error", "Pilih Kategori terlebih dahulu");
       return;
     }
 
     isLoading.value = true;
     try {
       final walletKey = int.parse(selectedWalletKey.value);
-
       final categoryKey = int.parse(selectedCategoryKey.value);
 
       final WalletModel wallet = box.get(walletKey)!;
       final CategoryModel category = boxCategories.get(categoryKey)!;
-
-      // Create transaction items
 
       List<Map<String, dynamic>> items = incomeList.map((e) {
         final nominalStr = e["nominal"] ?? "0";
@@ -128,46 +174,92 @@ class FormExpenseController extends GetxController {
         return {"name": e["name"], "nominal": int.tryParse(cleanedStr) ?? 0};
       }).toList();
 
-      final transaction = TransactionModel(
-        walletName: wallet.name,
-        categoryName: category.name,
-        amount: totalIncome,
-        items: items,
-        createdAt: DateTime.now(),
-        type: 'expense',
+      if (transaction != null && transactionKey != null) {
+        WalletModel? oldWallet;
+        int? oldWalletKey;
+
+        if (wallet.name == transaction!.walletName) {
+          oldWallet = wallet;
+          oldWalletKey = walletKey;
+        } else {
+          // Jika user mengganti wallet, kita harus cari wallet lama untuk dikembalikan saldonya
+          for (var i = 0; i < box.length; i++) {
+            var key = box.keyAt(i);
+            var w = box.get(key);
+            if (w?.name == transaction!.walletName) {
+              oldWallet = w;
+              oldWalletKey = key;
+              break;
+            }
+          }
+        }
+
+        if (oldWallet != null && oldWalletKey != null) {
+          oldWallet.balance += transaction!.amount;
+          oldWallet.todayExpense =
+              (oldWallet.todayExpense ?? 0) - transaction!.amount;
+          await box.put(oldWalletKey, oldWallet);
+        }
+
+        final updatedTransaction = TransactionModel(
+          walletName: wallet.name,
+          categoryName: category.name,
+          amount: totalIncome,
+          items: items,
+          createdAt: transaction!.createdAt,
+          type: 'expense',
+        );
+        await boxTransactions.put(transactionKey!, updatedTransaction);
+
+        final WalletModel targetWallet = box.get(walletKey)!;
+
+        targetWallet.balance -= totalIncome;
+        targetWallet.todayExpense =
+            (targetWallet.todayExpense ?? 0) + totalIncome;
+        await box.put(walletKey, targetWallet);
+      } else {
+        // --- LOGIKA BARU ---
+        final newTransaction = TransactionModel(
+          walletName: wallet.name,
+          categoryName: category.name,
+          amount: totalIncome,
+          items: items,
+          createdAt: DateTime.now(),
+          type: 'expense',
+        );
+
+        await boxTransactions.add(newTransaction);
+
+        wallet.balance -= totalIncome;
+        wallet.todayExpense = (wallet.todayExpense ?? 0) + totalIncome;
+        await box.put(walletKey, wallet);
+      }
+
+      final controllerWallet = Get.put<WalletController>(WalletController());
+
+      final controllerDashboard = Get.put<DashboardController>(
+        DashboardController(),
       );
 
-      // Save transaction
-      final transactionBox = Hive.box<TransactionModel>('transactions');
-      await transactionBox.add(transaction);
-
-      // Update wallet balance
-      wallet.balance -= totalIncome;
-      wallet.todayExpense = (wallet.todayExpense ?? 0) + totalIncome;
-      await box.put(walletKey, wallet);
-      final controller = Get.find<WalletController>();
-      final controllerDashboard = Get.find<DashboardController>();
-
       controllerDashboard.initializeData();
-      controller.refresh();
-      Get.back();
+      controllerWallet.refresh();
+
+      Get.back(); // Tutup form
       Get.snackbar(
         "Sukses",
-        "Pengeluaran berhasil disimpan",
-        mainButton: TextButton(
-          onPressed: () => Get.back(),
-          child: const Icon(Icons.close, color: Colors.white),
-        ),
+        transaction != null
+            ? "Pengeluaran berhasil diperbarui"
+            : "Pengeluaran berhasil disimpan",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
     } catch (e) {
       print(e);
       Get.snackbar(
         "Error",
-        "Gagal menyimpan pengeluaran: $e",
-        mainButton: TextButton(
-          onPressed: () => Get.back(),
-          child: const Icon(Icons.close, color: Colors.white),
-        ),
+        "Gagal menyimpan: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
     } finally {
       isLoading.value = false;

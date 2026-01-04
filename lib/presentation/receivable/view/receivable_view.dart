@@ -98,19 +98,21 @@ class ReceivableView extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Obx(
-                            () {
-                              double totalReceivable = controller.receivables.fold(0, (sum, receivable) => sum + receivable.amount);
-                              return Text(
-                                "Rp. ${NumberFormat.decimalPattern('id').format(totalReceivable)}",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.purple,
-                                ),
-                              );
-                            },
-                          ),
+                          Obx(() {
+                            double totalReceivable = controller.receivables
+                                .fold(
+                                  0,
+                                  (sum, receivable) => sum + receivable.amount,
+                                );
+                            return Text(
+                              "Rp. ${NumberFormat.decimalPattern('id').format(totalReceivable)}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -122,7 +124,9 @@ class ReceivableView extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.green.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: Colors.green.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,19 +157,19 @@ class ReceivableView extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Obx(
-                            () {
-                              int settledReceivables = controller.receivables.where((receivable) => receivable.isSettled).length;
-                              return Text(
-                                "${settledReceivables} piutang",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              );
-                            },
-                          ),
+                          Obx(() {
+                            int settledReceivables = controller.receivables
+                                .where((receivable) => receivable.isSettled)
+                                .length;
+                            return Text(
+                              "${settledReceivables} piutang",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
@@ -215,7 +219,11 @@ class ReceivableView extends StatelessWidget {
     });
   }
 
-  Widget _buildReceivableItem(ReceivableModel item, ReceivableController controller, int index) {
+  Widget _buildReceivableItem(
+    ReceivableModel item,
+    ReceivableController controller,
+    int index,
+  ) {
     Color color = Colors.purple;
     IconData icon = Icons.money;
     Color iconBg = Colors.purple.shade50;
@@ -260,7 +268,10 @@ class ReceivableView extends StatelessWidget {
             child: GestureDetector(
               onTap: () {
                 // Navigate to the form view for editing
-                Get.to(() => FormReceivableView(editingReceivable: item, index: index));
+                Get.to(
+                  () =>
+                      FormReceivableView(editingReceivable: item, index: index),
+                );
               },
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,8 +296,8 @@ class ReceivableView extends StatelessWidget {
                         color: item.isSettled
                             ? Colors.grey[400]
                             : item.dueDate!.isBefore(DateTime.now())
-                                ? Colors.red[400]
-                                : Colors.purple[400],
+                            ? Colors.red[400]
+                            : Colors.purple[400],
                       ),
                     ),
                 ],
@@ -294,23 +305,24 @@ class ReceivableView extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 4,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: item.isSettled
                   ? Colors.green.withValues(alpha: 0.1)
-                  : (item.dueDate != null && item.dueDate!.isBefore(DateTime.now()) && !item.isSettled)
-                      ? Colors.red.withValues(alpha: 0.1)
-                      : Colors.purple.withValues(alpha: 0.1),
+                  : (item.dueDate != null &&
+                        item.dueDate!.isBefore(DateTime.now()) &&
+                        !item.isSettled)
+                  ? Colors.red.withValues(alpha: 0.1)
+                  : Colors.purple.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: item.isSettled
                     ? Colors.green.withValues(alpha: 0.3)
-                    : (item.dueDate != null && item.dueDate!.isBefore(DateTime.now()) && !item.isSettled)
-                        ? Colors.red.withValues(alpha: 0.3)
-                        : Colors.purple.withValues(alpha: 0.3),
+                    : (item.dueDate != null &&
+                          item.dueDate!.isBefore(DateTime.now()) &&
+                          !item.isSettled)
+                    ? Colors.red.withValues(alpha: 0.3)
+                    : Colors.purple.withValues(alpha: 0.3),
               ),
             ),
             child: Text(
@@ -318,9 +330,11 @@ class ReceivableView extends StatelessWidget {
               style: TextStyle(
                 color: item.isSettled
                     ? Colors.green
-                    : (item.dueDate != null && item.dueDate!.isBefore(DateTime.now()) && !item.isSettled)
-                        ? Colors.red
-                        : Colors.purple,
+                    : (item.dueDate != null &&
+                          item.dueDate!.isBefore(DateTime.now()) &&
+                          !item.isSettled)
+                    ? Colors.red
+                    : Colors.purple,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -331,20 +345,99 @@ class ReceivableView extends StatelessWidget {
             icon: const Icon(Icons.more_vert),
             onSelected: (String action) async {
               if (action == 'edit') {
-                Get.to(() => FormReceivableView(editingReceivable: item, index: index));
+                Get.to(
+                  () =>
+                      FormReceivableView(editingReceivable: item, index: index),
+                );
               } else if (action == 'delete') {
                 // Show confirmation dialog
-                bool? confirm = await Get.defaultDialog(
-                  title: "Konfirmasi",
-                  middleText: "Apakah Anda yakin ingin menghapus data piutang ini?",
-                  textConfirm: "Hapus",
-                  textCancel: "Batal",
-                  confirmTextColor: Colors.white,
-                  cancelTextColor: Colors.grey,
-                  backgroundColor: Colors.white,
-                  buttonColor: Colors.red,
-                  onCancel: () => Get.back(),
-                  onConfirm: () => Get.back(result: true),
+                bool? confirm = await Get.dialog<bool>(
+                  Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20), // Sudut membulat
+                    ),
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 10.0,
+                            offset: Offset(0.0, 10.0),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Icon Peringatan Besar
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.delete_forever_rounded,
+                              size: 40,
+                              color: Colors.red,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            "Konfirmasi Hapus",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Apakah Anda yakin ingin menghapus data transaksi ini?",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              // Tombol Batal
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () => Get.back(result: false),
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text("Batal"),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              // Tombol Hapus (Solid Color)
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () => Get.back(result: true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: const Text("Hapus"),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 );
 
                 if (confirm == true) {
@@ -392,5 +485,4 @@ class ReceivableView extends StatelessWidget {
       ),
     );
   }
-
 }

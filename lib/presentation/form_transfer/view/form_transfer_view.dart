@@ -3,11 +3,14 @@ import 'package:get/get.dart';
 import 'package:financial_recording/core.dart';
 
 class FormTransferView extends StatelessWidget {
-  const FormTransferView({super.key});
+  const FormTransferView({super.key, this.transaction});
+  final TransactionModel? transaction;
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(FormTransferController());
+    final controller = Get.put(
+      FormTransferController(transaction: transaction),
+    );
 
     return Obx(() {
       if (controller.isLoading.value) {
@@ -51,9 +54,9 @@ class FormTransferView extends StatelessWidget {
       elevation: 0,
       backgroundColor: Colors.white,
       centerTitle: true,
-      title: const Text(
-        "Transfer Antar Wallet",
-        style: TextStyle(
+      title: Text(
+        transaction != null ? "Edit Transfer" : "Transfer Antar Wallet",
+        style: const TextStyle(
           color: Colors.black87,
           fontWeight: FontWeight.bold,
           fontSize: 18,
@@ -380,9 +383,9 @@ class FormTransferView extends StatelessWidget {
         children: [
           const Icon(Icons.send_rounded, color: Colors.white, size: 20),
           const SizedBox(width: 10),
-          const Text(
-            "Proses Transfer",
-            style: TextStyle(
+          Text(
+            transaction != null ? "Perbarui Transfer" : "Proses Transfer",
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
               color: Colors.white,
